@@ -2,12 +2,18 @@
 <html>
 <head>
 <title>Pin Drops</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='index.css') }}">
 </head>
-
 <body>
-
-<div align="center" style="position:static; height: 100%; width: 100%; top:0;left 0;">
-<img src="http://i68.tinypic.com/27yy4ab.png" border="0" alt="Image and video hosting by TinyPic">
+<div class=metanav>
+  {% if not session.logged_in %}
+    <a href="{{ url_for('login') }}">log in</a>
+  {% else %}
+    <a href="{{ url_for('logout') }}">log out</a>
+  {% endif %}
+</div>
+<div class="logo" align="center">
+<img src="http://i68.tinypic.com/27yy4ab.png" border="0" alt="Pin Drops">
 </div>
 
 

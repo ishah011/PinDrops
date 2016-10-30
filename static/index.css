@@ -1,0 +1,18 @@
+body{
+	background-color: #ECEFF1;
+}
+.logo{
+	position:static; 
+	height: 100%; 
+	width: 100%; 
+	top:0;
+	left:0;
+}
+.container{
+	text-align: center;
+	margin: 50px;
+	border-radius: 2px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: #F44336;
+}
