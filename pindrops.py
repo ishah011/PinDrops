@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_mysqldb import MySQL
-from flask import render_template
+from flask import render_template, request
 
 app = Flask(__name__)
 mysql = MySQL(app)
@@ -23,6 +23,10 @@ def index(store=None):
     #return str(",".join(store))+'\n Query: '+to_exec
     return render_template('search.html',store=store)
 
+@app.route('/search')
+def search():
+    return render_template('search.html')
+
 @app.route('/add', methods=['POST'])
 def add_entry():
     if not session.get('logged_in'):
@@ -32,7 +36,7 @@ def add_entry():
                  [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
     db.commit()
     flash('Account created')
-    return redirect('index.html')
+    return redirect('search.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,7 +49,7 @@ def login():
         else:
             session['logged_in'] = True
             flash('You were logged in')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('search'))
     return render_template('login.html', error=error)
 
 @app.route('/logout')
