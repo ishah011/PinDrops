@@ -21,7 +21,7 @@ def index(store=None):
     for i in rv[0]:
         store.append(str(i))
     #return str(",".join(store))+'\n Query: '+to_exec
-    return render_template('index.html',store=store)
+    return render_template('search.html',store=store)
 
 @app.route('/add', methods=['POST'])
 def add_entry():
