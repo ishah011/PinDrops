@@ -35,8 +35,8 @@ def add_entry():
     db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
                  [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
     db.commit()
-    flash('Account created')
-    return redirect('search.html')
+    flash('Account created. Please log in')
+    return redirect('login.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
