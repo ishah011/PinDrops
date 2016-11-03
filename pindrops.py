@@ -27,7 +27,7 @@ def index(store=None):
 def search():
     return render_template('search.html')
 
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['GET','POST'])
 def add_entry():
     db = mysql.connection.cursor()
     db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
