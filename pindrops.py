@@ -29,8 +29,6 @@ def search():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
     db = get_db()
     db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
                  [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
