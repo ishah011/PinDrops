@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_mysqldb import MySQL
-from flask import render_template, request
+from flask import render_template, request, session
 
 app = Flask(__name__)
 mysql = MySQL(app)
@@ -27,7 +27,7 @@ def index(store=None):
 def search():
     return render_template('search.html')
 
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['GET', 'POST'])
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
