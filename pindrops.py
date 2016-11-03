@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_mysqldb import MySQL
-from flask import render_template, request, session
+from flask import render_template, request, session, flash
 
 app = Flask(__name__)
 mysql = MySQL(app)
@@ -33,7 +33,6 @@ def add_entry():
     # db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
     #              [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
     # db.commit()
-    flash('Account created. Please log in')
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
