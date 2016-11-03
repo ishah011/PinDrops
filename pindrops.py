@@ -29,7 +29,7 @@ def search():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_entry():
-    db = get_db()
+    db = mysql.connection.cursor()
     db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
                  [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
     db.commit()
