@@ -29,12 +29,15 @@ def search():
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
-    conn = mysql.connection
-    db = conn.cursor()
-    db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
-                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
-    conn.commit()
-    return render_template('signup.html')
+    if request.method == 'POST':
+    	conn = mysql.connection
+    	db = conn.cursor()
+	    db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
+	                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
+    	conn.commit()
+    else:
+    	return render_template('signup.html')	
+    return "test"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
