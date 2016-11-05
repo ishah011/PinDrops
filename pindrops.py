@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_mysqldb import MySQL
-from flask import render_template, request, session, flash
+from flask import render_template, request, session, flash, redirect, url_for
 
 app = Flask(__name__)
 mysql = MySQL(app)
@@ -27,17 +27,16 @@ def search():
     return render_template('search.html')
 
 @app.route('/add', methods=['GET','POST'])
-def add_entry(message=None):
+def add_entry():
     if request.method == 'POST':
     	conn = mysql.connection
     	db = conn.cursor()
-	    db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
+	db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
 	                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
     	conn.commit()
-    	message = "Please log in"
     else:
     	return render_template('signup.html')	
-    return redirect('login.html', message=message)
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
