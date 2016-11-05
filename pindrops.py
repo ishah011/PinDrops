@@ -20,7 +20,6 @@ def index(store=None):
     store = []
     for i in rv[0]:
         store.append(str(i))
-    #return str(",".join(store))+'\n Query: '+to_exec
     return render_template('search.html',store=store)
 
 @app.route('/search')
@@ -28,16 +27,17 @@ def search():
     return render_template('search.html')
 
 @app.route('/add', methods=['GET','POST'])
-def add_entry():
+def add_entry(message=None):
     if request.method == 'POST':
     	conn = mysql.connection
     	db = conn.cursor()
 	    db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
 	                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
     	conn.commit()
+    	message = "Please log in"
     else:
     	return render_template('signup.html')	
-    return "test"
+    return redirect('login.html', message=message)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
