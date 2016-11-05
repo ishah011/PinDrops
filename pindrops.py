@@ -29,10 +29,11 @@ def search():
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
-    # db = mysql.connection.cursor()
-    # db.execute('INSERT INTO Users(email, password, firstName, lastName) values (?, ?, ?, ?)',
-    #              [request.form['Email'], request.form['Password'], request.form['Fname'], request.form['Lname']])
-    # db.commit()
+    conn = mysql.connection
+    db = conn.cursor()
+    db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
+                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
+    conn.commit()
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
