@@ -9,6 +9,7 @@ app.config['MYSQL_PASSWORD'] = 'cs411fa2016'
 app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 
+
 @app.route('/')
 def index(store=None): 
     current = ""
@@ -29,34 +30,38 @@ def search():
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
     if request.method == 'POST':
-    	conn = mysql.connection
-    	db = conn.cursor()
-	db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
+        conn = mysql.connection
+        db = conn.cursor()
+        db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
 	                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
-    	conn.commit()
+        conn.commit()
     else:
-    	return render_template('signup.html')	
+        return render_template('signup.html')	
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    loggedin = False
     error = None
     if request.method == 'POST':
-        if request.form['email'] != app.config['email']:
-            error = 'Invalid email'
-        elif request.form['password'] != app.config['password']:
-            error = 'Invalid password'
+        email = request.form['email']
+	password = request.form['password']
+        cur = mysql.connection.cursor()
+	cur.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, password))
+
+	rv = cur.fetchone()
+	if(rv is None):
+		error = 'Invalid email or password'
         else:
-            session['logged_in'] = True
-            flash('You were logged in')
+            loggedin = True
             return redirect(url_for('search'))
-    return render_template('login.html', error=error)
+#    return str(loggedin)
+    return render_template('login.html', error=error, loggedin=loggedin)
 
 @app.route('/logout')
 def logout():
-    session.pop('logged_in', None)
-    flash('You were logged out')
-    return redirect('index.html')
+    loggedin = False
+    return redirect(url_for('search'))
 
 if __name__ == '__main__':
     app.run(debug=True)
