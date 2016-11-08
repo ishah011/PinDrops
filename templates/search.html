@@ -2,14 +2,15 @@
 {% block body %}
 	<form action="{{ url_for('search') }}" method=get class="container">
 		<dl>
+			<select name=selection>
+				<option value="NULL">-SELECT ONE-</option>
+				<option value="Actor" name=actor>Actor</option>
+				<option value="Movie" name=movie>Movie</option>
+				<option value="Location" name=location>Location</option>
+			</select>
         	<dt class="search">Search
 	    		<dd><input type="text" size="30" placeholder="Enter Actor or Movie name" name=Search>
     			<dd><input type=submit value=Search class="search">
   		</dl>
-  		<select>
-			<option value="NULL">-SELECT ONE-</option>
-			<option value="Actor">Actor</option>
-			<option value="Movie">Movie</option>
-		</select>
 	</form>
 {% endblock %}
