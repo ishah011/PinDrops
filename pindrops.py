@@ -26,56 +26,77 @@ def index(store=None):
 @app.route('/search', methods=['GET','POST'])
 def search():
 	error = None
+	store = []
 	if request.method == 'POST':
-		# cur = mysql.connection.cursor()
+		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
 			print "test"
-			# value = request.form['Search']
-			# list(value)
-			# if len(value) == 2:
-			# 	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(value[1], value[0]))
-			# elif len(value) > 2:
-			# 	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {} {}%'""".format(value[2], value[0], value[1]))
-			# else:
-			# 	cur.execute("""SELECT * FROM Actors WHERE name = '{}'""".format(value[0]))
+			#value = request.form['Search']
+			#val = value.split(" ")
+			#if len(val) == 2:
+			#	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(val[1], val[0]))
+			#elif len(val) > 2:
+			#	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {} {}%'""".format(val[2], val[0], val[1]))
+			#else:
+			#	cur.execute("""SELECT * FROM Actors WHERE name = '{}'""".format(val[0]))
+			#rv = cur.fetchall()
+			#list(rv)
+			#store = []
+			#for i in rv[0]:
+			#	store.append(str(i))
 		# elif request.form['selection'] == 'Movie':
 		# 	#query for movie
 		# elif request.form['selection'] == 'Location':
 		# 	#query for location
 		# else:
 		# 	error = "Please choose an option below"
-    return render_template('search.html', error=error)
+        return render_template('search.html', error=error,store=store)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
+    error = None
     if request.method == 'POST':
         conn = mysql.connection
         db = conn.cursor()
-        db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
-	                  (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
-        conn.commit()
+	email = request.form['email']
+        db.execute("""SELECT * FROM Users WHERE email='{}'""".format(email))
+	rv = db.fetchall()
+	if rv is None:
+		db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
+	        	          (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
+        	conn.commit()
+	else:
+		error = "User with email "+ str(email)+ " already exists"
+		return render_template('signup.html', error=error)
     else:
-        return render_template('signup.html')	
+        return render_template('signup.html', error=error)	
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     loggedin = False
     error = None
+    result  = ""
     if request.method == 'POST':
         email = request.form['email']
-		password = request.form['password']
+	password = request.form['password']
         cur = mysql.connection.cursor()
-		cur.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, password))
+	cur.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, password))
 
-		rv = cur.fetchone()
-		if(rv is None):
-			error = 'Invalid email or password'
-	        else:
-	            loggedin = True
-	            return redirect(url_for('search'))
-#    return str(loggedin)
-    return render_template('login.html', error=error, loggedin=loggedin)
+	rv = cur.fetchone()
+	if(rv is None):
+		error = 'Invalid email or password'
+        else:
+        	loggedin = True
+		list(rv)
+		store = []
+		for i in rv:
+			print i
+			store.append(str(i))
+		result = ",".join(store)
+		print result
+
+    return render_template('login.html', error=error, loggedin=loggedin, result=result)
 
 @app.route('/logout')
 def logout():

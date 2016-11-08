@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 {% block body %}
 	<h2>Sign Up</h2>
+	{%if error %}<p class=error><strong>Error:</string> {{error}}{%endif%}
     <form action="{{ url_for('add_entry') }}" method=post class="add-entry container">
     <dl>
       <dt class="login">First Name
