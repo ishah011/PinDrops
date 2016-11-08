@@ -23,9 +23,28 @@ def index(store=None):
         store.append(str(i))
     return render_template('search.html',store=store)
 
-@app.route('/search')
+@app.route('/search', methods=['GET','POST'])
 def search():
-    return render_template('search.html')
+	error = None
+	if request.method == 'POST':
+		# cur = mysql.connection.cursor()
+		if request.form['selection'] == 'Actor':
+			print "test"
+			# value = request.form['Search']
+			# list(value)
+			# if len(value) == 2:
+			# 	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(value[1], value[0]))
+			# elif len(value) > 2:
+			# 	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {} {}%'""".format(value[2], value[0], value[1]))
+			# else:
+			# 	cur.execute("""SELECT * FROM Actors WHERE name = '{}'""".format(value[0]))
+		# elif request.form['selection'] == 'Movie':
+		# 	#query for movie
+		# elif request.form['selection'] == 'Location':
+		# 	#query for location
+		# else:
+		# 	error = "Please choose an option below"
+    return render_template('search.html', error=error)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
@@ -45,16 +64,16 @@ def login():
     error = None
     if request.method == 'POST':
         email = request.form['email']
-	password = request.form['password']
+		password = request.form['password']
         cur = mysql.connection.cursor()
-	cur.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, password))
+		cur.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, password))
 
-	rv = cur.fetchone()
-	if(rv is None):
-		error = 'Invalid email or password'
-        else:
-            loggedin = True
-            return redirect(url_for('search'))
+		rv = cur.fetchone()
+		if(rv is None):
+			error = 'Invalid email or password'
+	        else:
+	            loggedin = True
+	            return redirect(url_for('search'))
 #    return str(loggedin)
     return render_template('login.html', error=error, loggedin=loggedin)
 
