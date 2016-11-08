@@ -71,9 +71,9 @@ def login():
 		rv = cur.fetchone()
 		if(rv is None):
 			error = 'Invalid email or password'
-	        else:
-	            loggedin = True
-	            return redirect(url_for('search'))
+        else:
+            loggedin = True
+            return redirect(url_for('search'))
 #    return str(loggedin)
     return render_template('login.html', error=error, loggedin=loggedin)
 
