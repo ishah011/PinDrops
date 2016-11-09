@@ -30,26 +30,42 @@ def search():
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
-			print "test"
-			#value = request.form['Search']
-			#val = value.split(" ")
-			#if len(val) == 2:
-			#	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(val[1], val[0]))
-			#elif len(val) > 2:
-			#	cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {} {}%'""".format(val[2], val[0], val[1]))
-			#else:
-			#	cur.execute("""SELECT * FROM Actors WHERE name = '{}'""".format(val[0]))
-			#rv = cur.fetchall()
-			#list(rv)
-			#store = []
-			#for i in rv[0]:
-			#	store.append(str(i))
-		# elif request.form['selection'] == 'Movie':
-		# 	#query for movie
-		# elif request.form['selection'] == 'Location':
-		# 	#query for location
-		# else:
-		# 	error = "Please choose an option below"
+			fname = request.form['firstName']
+			lname = request.form['lastName']
+			cur.execute("""SELECT m.title, f.location FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+#			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
+			rv = cur.fetchall()
+			store = []
+			for i in rv[:20]:
+				temp = []
+				for j in i:
+					temp.append(str(j))
+				store.append(": ".join(temp))
+		elif request.form['selection'] == 'Movie':
+		 	movieName = request.form['movieName']
+			cur.execute("""SELECT DISTINCT m.title, f.location FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
+			rv = cur.fetchall()
+			store = []
+			for i in rv:
+				temp = []
+				for j in i:
+					temp.append(j)
+				store.append(": ".join(temp))
+
+		elif request.form['selection'] == 'Location':
+		 	city = request.form['cityName']
+			state = request.form['stateName']
+			country = request.form['countryName']
+			cur.execute("""SELECT title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
+			rv = cur.fetchall()
+			store = []
+			for i in rv[:20]:
+				temp = []
+				for j in i:
+					temp.append(str(j))
+				store.append(" - ".join(temp))
+		else:
+		 	error = "Please choose an option below"
         return render_template('search.html', error=error,store=store)
 
 @app.route('/add', methods=['GET','POST'])
@@ -91,10 +107,8 @@ def login():
 		list(rv)
 		store = []
 		for i in rv:
-			print i
 			store.append(str(i))
 		result = ",".join(store)
-		print result
 
     return render_template('login.html', error=error, loggedin=loggedin, result=result)
 

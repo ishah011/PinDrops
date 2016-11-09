@@ -6,55 +6,51 @@
 <script type ="text/javascript"  src="{{url_for('static', filename='search.js')}}"></script>
 
 <center>
-<select class="div-toggle" data-target=".my-info-1">
+<form action="{{ url_for('search') }}" method=post class="search container">
+<select name=selection class="div-toggle" data-target=".my-info-1">
   <option value="SELECT ONE" data-show=".select">SELECT SEARCH CATEGORY</option>
   <option value="Actor" data-show=".actor">Actor</option>
   <option value="Movie" data-show=".movie">Movie</option>
   <option value="Location" data-show=".location">Location</option>
 </select>
-</center>
+
 <div class="my-info-1">
   <div class="actor hide">
-  	<center><h2>Search for an actor</h2></center>
-    <form action="{{ url_for('search') }}" method=post class="add-entry container">
+        <center><h2>Search for an actor</h2></center>
     <dl>
       <dt class="search">First Name
-        <dd><input type="text" size="30" placeholder="Enter First Name" name=firstName required>
+        <dd><input type="text" size="30" placeholder="Enter First Name" name=firstName>
       <dt class="search">Last Name
-        <dd><input type="text" size="30" placeholder="Enter Last Name" name=lastName required>
+        <dd><input type="text" size="30" placeholder="Enter Last Name" name=lastName>
       <dd><input type=submit value="Search" class="search">
     </dl>
-  </form>
   </div>
-  
+
   <div class="movie hide">
   <center><h2>Search for a movie</h2> </center>
-    <form action="{{ url_for('search') }}" method=post class="add-entry container">
     <dl>
       <dt class="search">Movie Name
-        <dd><input type="text" size="30" placeholder="Enter Movie Name" name=movieName required>
+        <dd><input type="text" size="30" placeholder="Enter Movie Name" name=movieName>
       <dd><input type=submit value="Search" class="search">
     </dl>
-  </form>
   </div>
-  
-  
+
+
   <div class="location hide">
   <center><h2>Search for a location</h2></center>
-    <form action="{{ url_for('search') }}" method=post class="add-entry container">
     <dl>
       <dt class="search">City Name
-        <dd><input type="text" size="30" placeholder="Enter City Name" name=cityName required>
+        <dd><input type="text" size="30" placeholder="Enter City Name" name=cityName>
       <dt class="search">State Name
-        <dd><input type="text" size="30" placeholder="Enter State Name" name=stateName required>
-      <dt class="search">Country Name     
-	 <dd><input type="text" size="30" placeholder="Enter Country Name" name=countryName required>
-      	
-	<center><dd><input type=submit value="Search" class="search"></center>
+        <dd><input type="text" size="30" placeholder="Enter State Name" name=stateName>
+      <dt class="search">Country Name
+         <dd><input type="text" size="30" placeholder="Enter Country Name" name=countryName>
+
+        <center><dd><input type=submit value="Search" class="search"></center>
     </dl>
-  </form>
   
   </div>
 
+</form>
 {% endblock %}
 
