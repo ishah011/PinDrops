@@ -1,3 +1,13 @@
 .hide {
   display: none;
 }
+
+.result{
+	border-style: solid;
+	border-color: blue;
+}
+
+.advanced{
+	border-style: solid;
+	border-color: green;
+}

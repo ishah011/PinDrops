@@ -53,11 +53,19 @@
 
 </form>
 </center>
-<div class=result>
+{% if store %}
+<div class="result">
 {% for item in store %}
 {{item}}
 {% endfor %}
 </div>
+<div class="advanced">
+<br>
+{{advanced1}}
+<br>
+{{advanced2}}
+</div>
+{% endif %}
 {% endblock %}
 
 

@@ -27,6 +27,8 @@ def index(store=None):
 def search():
 	error = None
 	store = []
+	advanced1 = ""
+	advanced2 = ""
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
@@ -41,6 +43,8 @@ def search():
 				for j in i:
 					temp.append(str(j))
 				store.append(": ".join(temp))
+			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			cur.execute("""SELECT DISTINCT m.title, f.location FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
@@ -51,11 +55,16 @@ def search():
 				for j in i:
 					temp.append(j)
 				store.append(": ".join(temp))
+			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+                        advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 
 		elif request.form['selection'] == 'Location':
 		 	city = request.form['cityName']
 			state = request.form['stateName']
 			country = request.form['countryName']
+			if country == 'England' or country == 'Ireland' or country == 'Wales':
+				country = 'UK'
+				state = country
 			cur.execute("""SELECT title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 			store = []
@@ -64,9 +73,12 @@ def search():
 				for j in i:
 					temp.append(str(j))
 				store.append(" - ".join(temp))
+			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+                        advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store)
+        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
