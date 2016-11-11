@@ -12,16 +12,7 @@ app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 
 @app.route('/')
 def index(store=None): 
-    current = ""
-    cur = mysql.connection.cursor()
-    to_exec = "SELECT * FROM Actors WHERE name='Depp, Johnny'"
-    cur.execute("""SELECT * FROM Actors WHERE name='Depp, Johnny'""")
-    rv = cur.fetchall()
-    list(rv)
-    store = []
-    for i in rv[0]:
-        store.append(str(i))
-    return render_template('search.html',store=store)
+    return render_template('search.html')
 
 @app.route('/search', methods=['GET','POST'])
 def search():
@@ -33,7 +24,9 @@ def search():
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
 			fname = request.form['firstName']
+			fname = fname.capitalize()
 			lname = request.form['lastName']
+			lname = lname.capitalize()
 			cur.execute("""SELECT m.title, f.location FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
@@ -41,37 +34,49 @@ def search():
 			for i in rv[:20]:
 				temp = []
 				for j in i:
-					temp.append(str(j))
+					temp.append(str(jcodeData.encode('ascii', 'ignore')))
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
+			movieName = movieName.capitalize()
 			cur.execute("""SELECT DISTINCT m.title, f.location FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
 			store = []
 			for i in rv:
 				temp = []
 				for j in i:
-					temp.append(j)
+					temp.append(str(j.encode('ascii', 'ignore')))
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 
 		elif request.form['selection'] == 'Location':
-		 	city = request.form['cityName']
+			city = request.form['cityName']
 			state = request.form['stateName']
 			country = request.form['countryName']
-			if country == 'England' or country == 'Ireland' or country == 'Wales':
-				country = 'UK'
+			city = city.capitalize()
+			state = state.capitalize()
+			country = country.capitalize()
+			if (country == 'England' or country == 'Scotland' or country == 'Ireland' or country == 'Wales'):
+				if country == 'Ireland':
+					country = 'Northern Ireland'
+				city = city
 				state = country
+				country = "UK"
+			if country == 'Us' or country == 'America' or country == 'US':
+				country = 'USA'
 			cur.execute("""SELECT title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 			store = []
 			for i in rv[:20]:
 				temp = []
 				for j in i:
-					temp.append(str(j))
+					if type(j) == 'string':
+						temp.append(str(j.encode('ascii', 'ignore')))
+					else:
+						temp.append(str(j))
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
