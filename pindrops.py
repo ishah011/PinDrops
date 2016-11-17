@@ -34,7 +34,10 @@ def search():
 			for i in rv[:20]:
 				temp = []
 				for j in i:
-					temp.append(str(jcodeData.encode('ascii', 'ignore')))
+					if type(j) == "string":
+						temp.append(str(j.encode('ascii', 'ignore')))
+					else:
+						temp.append(str(j))
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -47,7 +50,10 @@ def search():
 			for i in rv:
 				temp = []
 				for j in i:
-					temp.append(str(j.encode('ascii', 'ignore')))
+					if type(j) == "string":
+						temp.append(str(j.encode('ascii', 'ignore')))
+					else:
+						temp.append(str(j))
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -89,12 +95,13 @@ def search():
 def add_entry():
     error = None
     if request.method == 'POST':
+	rv = []
         conn = mysql.connection
         db = conn.cursor()
 	email = request.form['email']
         db.execute("""SELECT * FROM Users WHERE email='{}'""".format(email))
 	rv = db.fetchall()
-	if rv is None:
+	if len(rv) is 0:
 		db.execute("INSERT INTO Users(email, password, firstName, lastName) values (%s, %s, %s, %s)",
 	        	          (request.form['email'],request.form['password'], request.form['firstName'],request.form['lastName']))
         	conn.commit()

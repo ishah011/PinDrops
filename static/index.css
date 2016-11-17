@@ -1,5 +1,5 @@
 body{
-	background-color: #ECEFF1;
+	background-color: #c9c9c9;
 }
 .logo{
 	position:static; 
@@ -15,4 +15,18 @@ body{
 	border-width: 2px;
 	border-style: solid;
 	border-color: #F44336;
+}
+
+.metanav{
+	background-color: #e3e3e3;
+	margin: 10px;
+	padding: 10px;
+}
+
+.metanav a:link, .metanav a:visited{
+	color: #000;
+}
+
+.metanav a:hover, .metanav a:active{
+	color: #000;
 }
