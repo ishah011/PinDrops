@@ -60,7 +60,6 @@ def search():
             repeat = False
 
             for i in rv:
-                if i[3] is None
                     geocode(i[2])
                     repeat = True
 
