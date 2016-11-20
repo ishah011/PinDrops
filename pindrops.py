@@ -2,6 +2,9 @@ from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
 
+import urllib2
+import json
+
 app = Flask(__name__)
 mysql = MySQL(app)
 app.config['MYSQL_USER'] = 'root'
@@ -9,9 +12,33 @@ app.config['MYSQL_PASSWORD'] = 'cs411fa2016'
 app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 
+def geocode(searchString):
+    APIurl = "http://free.gisgraphy.com/geocoding/geocode?address={}&format=JSON&from=1&to=10&indent=false".format(urllib.quote_plus(searchString))
+    content = urllib2.urlopen(APIurl).read()
+    json_data = json.loads(content)
+
+    numFound = json_data["numFound"]
+    if numFound is 0
+        db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
+        conn.commit()
+        return
+
+    lat = json_data["result"][0]["lat"]
+    lng = json_data["result"][0]["lng"]
+
+    rv = []
+    conn = mysql.connection
+    db = conn.cursor()
+    db.execute("""SELECT * FROM Filmed_In WHERE location='{}'""".format(searchString))
+	rv = db.fetchall()
+	if len(rv) > 0:
+        db.execute("""UPDATE Filmed_In SET latitude = {}, longitude = {} WHERE location = '{}'""".format(lat, lng, searchString))
+        conn.commit()
+    else:
+        print "NO MATCHING LOCATION"
 
 @app.route('/')
-def index(store=None): 
+def index(store=None):
     return render_template('search.html')
 
 @app.route('/search', methods=['GET','POST'])
@@ -27,9 +54,21 @@ def search():
 			fname = fname.capitalize()
 			lname = request.form['lastName']
 			lname = lname.capitalize()
-			cur.execute("""SELECT m.title, f.location FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
+            repeat = False
+
+            for i in rv:
+                if i[3] is None
+                    geocode(i[2])
+                    repeat = True
+
+            if repeat
+                cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+    #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
+    			rv = cur.fetchall()
+
 			store = []
 			for i in rv[:20]:
 				temp = []
@@ -109,7 +148,7 @@ def add_entry():
 		error = "User with email "+ str(email)+ " already exists"
 		return render_template('signup.html', error=error)
     else:
-        return render_template('signup.html', error=error)	
+        return render_template('signup.html', error=error)
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -140,6 +179,7 @@ def login():
 def logout():
     loggedin = False
     return redirect(url_for('search'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
