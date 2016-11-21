@@ -8,13 +8,16 @@ body{
 	top:0;
 	left:0;
 }
-.container{
-	text-align: center;
-	margin: 50px;
-	border-radius: 2px;
-	border-width: 2px;
-	border-style: solid;
-	border-color: #F44336;
+
+.container {
+    text-align: center;
+    margin: 50px;
+    background: #9ad3de;
+    width: 50%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 20px;
+    box-shadow: 5px 5px 50px -6px rgba(0,0,0,0.66);
 }
 
 .metanav{
