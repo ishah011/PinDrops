@@ -25,7 +25,8 @@ def geocode(searchString):
     print ('GEOCODE FUNCTION START', file=sys.stderr)
     #if type(searchString) != "string":
 #	return
-
+    if searchString is None:
+	return
     try:
     	APIurl = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key=AIzaSyCaGXqswUJlWF3x9IpdEG2DdA-UhUqaAN0".format(urllib.quote_plus(searchString))
     	content = urllib2.urlopen(APIurl).read()
@@ -111,10 +112,13 @@ def search():
 			for i in rv[:20]:
 				temp = []
 				for j in i:
-					if type(j) == "string":
-						temp.append(str(j.encode('ascii', 'ignore')))
-					else:
-						temp.append(str(j))
+					try:
+						if type(j) == "string":
+							temp.append(str(j.encode('ascii', 'ignore')))
+						else:
+							temp.append(str(j))
+					except:
+						return
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature yo"
 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -127,10 +131,13 @@ def search():
 			for i in rv:
 				temp = []
 				for j in i:
-					if type(j) == "string":
-						temp.append(str(j.encode('ascii', 'ignore')))
-					else:
-						temp.append(str(j))
+					try:
+						if type(j) == "string":
+							temp.append(str(j.encode('ascii', 'ignore')))
+						else:
+							temp.append(str(j))
+					except:
+						return
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -156,10 +163,13 @@ def search():
 			for i in rv[:20]:
 				temp = []
 				for j in i:
-					if type(j) == 'string':
-						temp.append(str(j.encode('ascii', 'ignore')))
-					else:
-						temp.append(str(j))
+					try:
+						if type(j) == 'string':
+							temp.append(str(j.encode('ascii', 'ignore')))
+						else:
+							temp.append(str(j))
+					except:
+						return
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
