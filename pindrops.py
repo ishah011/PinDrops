@@ -92,7 +92,7 @@ def search():
 					else:
 						temp.append(str(j))
 				store.append(": ".join(temp))
-			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature yo"
 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
