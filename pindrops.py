@@ -27,26 +27,41 @@ def geocode(searchString):
 #	return
 
     try:
-    	APIurl = "http://free.gisgraphy.com/geocoding/geocode?address={}&format=JSON&from=1&to=10&indent=false".format(urllib.quote_plus(searchString))
+    	APIurl = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key=AIzaSyCaGXqswUJlWF3x9IpdEG2DdA-UhUqaAN0".format(urllib.quote_plus(searchString))
     	content = urllib2.urlopen(APIurl).read()
     except:
 	print ('SEVER RETURNED EXCEPTION!!!', file=sys.stderr)
 	return
     json_data = json.loads(content)
 
-    numFound = json_data["numFound"]
-    if numFound is 0:
-        db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
-        conn.commit()
-        return
-    print ('LAT AND LONG DATA CAPTURED', file=sys.stderr)
-    lat = json_data["result"][0]["lat"]
-    lng = json_data["result"][0]["lng"]
+#    numFound = json_data["numFound"]
+#    if numFound is 0:
+#        db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
+#        conn.commit()
+#        return
 
     rv = []
     conn = mysql.connection
     db = conn.cursor()
-    db.execute("""SELECT * FROM Filmed_In WHERE location='{}'""".format(searchString))
+
+    searchString = searchString.replace("'", "''")
+
+    returnStatus = json_data["status"]
+    if returnStatus == "ZERO_RESULTS":
+	db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
+        conn.commit()
+        return
+
+    print ('LAT AND LONG DATA CAPTURED', file=sys.stderr)
+    lat = json_data["results"][0]["geometry"]["location"]["lat"]
+    lng = json_data["results"][0]["geometry"]["location"]["lng"]
+
+    try:
+     	db.execute("""SELECT * FROM Filmed_In WHERE location='{}'""".format(searchString))
+    except:
+	print('FATAL SQL ERROR', file=sys.stderr)
+	return
+
     rv = db.fetchall()
     if len(rv) > 0:
         print ( 'UPDATING LAT AND LONG WITH VALUES: ' + str(lat) + ' ' + str(lng), file=sys.stderr)
