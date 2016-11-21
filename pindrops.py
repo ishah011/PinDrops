@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
+from __future__ import print_function # In python 2.7
 
+import sys
 import urllib2
 import json
 
@@ -13,7 +15,7 @@ app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 
 def geocode(searchString):
-    print "GEOCODE FUNCTION START"
+    print ('GEOCODE FUNCTION START', file=sys.stderr)
 
     APIurl = "http://free.gisgraphy.com/geocoding/geocode?address={}&format=JSON&from=1&to=10&indent=false".format(urllib.quote_plus(searchString))
     content = urllib2.urlopen(APIurl).read()
@@ -34,11 +36,11 @@ def geocode(searchString):
     db.execute("""SELECT * FROM Filmed_In WHERE location='{}'""".format(searchString))
 	rv = db.fetchall()
 	if len(rv) > 0:
-        print "UPDATING LAT AND LONG WITH VALUES:" + lat + " " + lng
+        print ( 'UPDATING LAT AND LONG WITH VALUES: ' + lat + ' ' + lng, file=sys.stderr)
         db.execute("""UPDATE Filmed_In SET latitude = {}, longitude = {} WHERE location = '{}'""".format(lat, lng, searchString))
         conn.commit()
     else:
-        print "NO MATCHING LOCATION"
+        print ('NO MATCHING LOCATION', file=sys.stderr)
 
 @app.route('/')
 def index(store=None):
@@ -62,10 +64,10 @@ def search():
 			rv = cur.fetchall()
             repeat = False
 
-            print "Inside the search function, about to attempt geocoding"
+            print ('ENTER SEARCH METHOD', file=sys.stderr)
 
             for i in rv:
-                    print "Calling GEOCODE"
+                    print ('CALLING GEOCODE', file=sys.stderr)
                     geocode(i[2])
                     repeat = True
 
