@@ -1,11 +1,12 @@
+from __future__ import print_function
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
-from __future__ import print_function # In python 2.7
 from flask_debugtoolbar import DebugToolbarExtension
 
 import sys
 import urllib2
+import urllib
 import json
 
 app = Flask(__name__)
@@ -22,17 +23,23 @@ app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 
 def geocode(searchString):
     print ('GEOCODE FUNCTION START', file=sys.stderr)
+    #if type(searchString) != "string":
+#	return
 
-    APIurl = "http://free.gisgraphy.com/geocoding/geocode?address={}&format=JSON&from=1&to=10&indent=false".format(urllib.quote_plus(searchString))
-    content = urllib2.urlopen(APIurl).read()
+    try:
+    	APIurl = "http://free.gisgraphy.com/geocoding/geocode?address={}&format=JSON&from=1&to=10&indent=false".format(urllib.quote_plus(searchString))
+    	content = urllib2.urlopen(APIurl).read()
+    except:
+	print ('SEVER RETURNED EXCEPTION!!!', file=sys.stderr)
+	return
     json_data = json.loads(content)
 
     numFound = json_data["numFound"]
-    if numFound is 0
+    if numFound is 0:
         db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
         conn.commit()
         return
-
+    print ('LAT AND LONG DATA CAPTURED', file=sys.stderr)
     lat = json_data["result"][0]["lat"]
     lng = json_data["result"][0]["lng"]
 
@@ -40,9 +47,9 @@ def geocode(searchString):
     conn = mysql.connection
     db = conn.cursor()
     db.execute("""SELECT * FROM Filmed_In WHERE location='{}'""".format(searchString))
-	rv = db.fetchall()
-	if len(rv) > 0:
-        print ( 'UPDATING LAT AND LONG WITH VALUES: ' + lat + ' ' + lng, file=sys.stderr)
+    rv = db.fetchall()
+    if len(rv) > 0:
+        print ( 'UPDATING LAT AND LONG WITH VALUES: ' + str(lat) + ' ' + str(lng), file=sys.stderr)
         db.execute("""UPDATE Filmed_In SET latitude = {}, longitude = {} WHERE location = '{}'""".format(lat, lng, searchString))
         conn.commit()
     else:
@@ -68,20 +75,22 @@ def search():
 			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
-            repeat = False
+    		        repeat = False
 
-            print ('ENTER SEARCH METHOD', file=sys.stderr)
-            app.logger.info('Flask toolbar is operational inside search method')
+           		print ('ENTER SEARCH METHOD', file=sys.stderr)
+         		app.logger.info('Flask toolbar is operational inside search method')
 
-            for i in rv:
-                    print ('CALLING GEOCODE', file=sys.stderr)
-                    geocode(i[2])
-                    repeat = True
+           		for i in rv:
+				 if i[2] is None:
+                   			 print ('CALLING GEOCODE', file=sys.stderr)
+					 print (i[1], file=sys.stderr)
+                   			 geocode(i[1])
+                   			 repeat = True
 
-            if repeat
-                cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+           		if repeat == True:
+               			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
     #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
-    			rv = cur.fetchall()
+    				rv = cur.fetchall()
 
 			store = []
 			for i in rv[:20]:
