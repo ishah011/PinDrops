@@ -14,12 +14,14 @@ app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 314159265358979
 toolbar = DebugToolbarExtension(app)
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 mysql = MySQL(app)
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'cs411fa2016'
 app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
+app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8f\xe2\r"""
 
 def locationAnalysis():
     rv = []
@@ -28,24 +30,28 @@ def locationAnalysis():
 
     print ( 'Entering LOCATION ANALYSIS', file=sys.stderr)
 
-    db.execute("""SELECT location FROM Filmed_In WHERE latitude IS NULL""")
+    db.execute("""SELECT location FROM Filmed_In WHERE latitude IS NULL OR latitude = longitude""")
     rv = db.fetchall()
 
     for row in rv:
         location = row[0]
         elements = location.split(",")
+	location = location.replace("'", "''").encode('ascii', 'ignore').decode('ascii')
         if len(elements) > 2:
-            countryCode = elements[-1]
-            state = elements[-2]
-            city = elements[-3]
+            countryCode = elements[-1].encode('ascii', 'ignore').decode('ascii').strip().replace("'", "")
+            state = elements[-2].encode('ascii', 'ignore').decode('ascii').strip().replace("'", "")
+            city = elements[-3].encode('ascii', 'ignore').decode('ascii').strip().replace("'","")
             if countryCode is None or state is None or city is None:
                 return
+	    print (countryCode, file=sys.stderr)
+	    print (state, file=sys.stderr)
+	    print (city, file=sys.stderr)
             db = conn.cursor()
             db.execute("""SELECT latitude, longitude FROM FilmingLocationAlt WHERE ISO3 = '{}' AND stateName = '{}' AND city = '{}'""".format(countryCode, state, city))
             locRV = db.fetchall()
             if len(locRV) > 0:
                 lat = locRV[0][0]
-                lng = locRV[0][0]
+                lng = locRV[0][1]
 
                 print ( 'UPDATING LAT AND LONG WITH VALUES: ' + str(lat) + ' ' + str(lng) + ' FOR ' + str(location), file=sys.stderr)
 
@@ -119,7 +125,7 @@ def search():
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
 
-            locationAnalysis()
+#        		locationAnalysis()
 
 			fname = request.form['firstName']
 			fname = fname.capitalize()
@@ -128,22 +134,22 @@ def search():
 			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
-    		        repeat = False
+#    		        repeat = False
 
-           		print ('ENTER SEARCH METHOD', file=sys.stderr)
-         		app.logger.info('Flask toolbar is operational inside search method')
+#           		print ('ENTER SEARCH METHOD', file=sys.stderr)
+#         		app.logger.info('Flask toolbar is operational inside search method')
 
-           		for i in rv:
-				 if i[2] is None:
-                   			 print ('CALLING GEOCODE', file=sys.stderr)
-					 print (i[1], file=sys.stderr)
-                   			 geocode(i[1])
-                   			 repeat = True
+#           		for i in rv:
+#				 if i[2] is None:
+#                   			 print ('CALLING GEOCODE', file=sys.stderr)
+#					 print (i[1], file=sys.stderr)
+#                   			 geocode(i[1])
+#                   			 repeat = True
 
-           		if repeat == True:
-               			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+#           		if repeat == True:
+#               			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
     #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
-    				rv = cur.fetchall()
+#    				rv = cur.fetchall()
 
 			store = []
 			for i in rv[:20]:
@@ -251,7 +257,8 @@ def login():
 	if(rv is None):
 		error = 'Invalid email or password'
         else:
-        	loggedin = True
+		session['logged_in'] = True
+#        	loggedin = True
 		list(rv)
 		store = []
 		for i in rv:
@@ -262,7 +269,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    loggedin = False
+    session.pop('logged_in', None)
     return redirect(url_for('search'))
 
 
