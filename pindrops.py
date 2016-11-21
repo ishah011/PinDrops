@@ -2,12 +2,18 @@ from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
 from __future__ import print_function # In python 2.7
+from flask_debugtoolbar import DebugToolbarExtension
 
 import sys
 import urllib2
 import json
 
 app = Flask(__name__)
+
+app.debug = True
+app.config['SECRET_KEY'] = 314159265358979
+toolbar = DebugToolbarExtension(app)
+
 mysql = MySQL(app)
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'cs411fa2016'
@@ -65,6 +71,7 @@ def search():
             repeat = False
 
             print ('ENTER SEARCH METHOD', file=sys.stderr)
+            app.logger.info('Flask toolbar is operational inside search method')
 
             for i in rv:
                     print ('CALLING GEOCODE', file=sys.stderr)
