@@ -2,13 +2,13 @@ from __future__ import print_function
 from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
-from flask_debugtoolbar import DebugToolbarExtension
-from flask_googlemaps import GoogleMaps, Map
+from flask_debugtoolbar import DebugToolbarExtension 
 
 import sys
 import urllib2
 import urllib
 import json
+import googlemaps
 
 app = Flask(__name__)
 
