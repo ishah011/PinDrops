@@ -3,6 +3,7 @@ from flask import Flask
 from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for
 from flask_debugtoolbar import DebugToolbarExtension
+from flask_googlemaps import GoogleMaps, Map
 
 import sys
 import urllib2
@@ -15,6 +16,9 @@ app.debug = True
 app.config['SECRET_KEY'] = 314159265358979
 toolbar = DebugToolbarExtension(app)
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
+#app.config['GOOGLEMAPS_KEY'] = "AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI"
+#GoogleMaps(app)
 
 mysql = MySQL(app)
 app.config['MYSQL_USER'] = 'root'
@@ -161,7 +165,9 @@ def search():
 						else:
 							temp.append(str(j))
 					except:
-						return
+						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+                        			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature yo"
 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -180,7 +186,9 @@ def search():
 						else:
 							temp.append(str(j))
 					except:
-						return
+						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2)
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -212,7 +220,9 @@ def search():
 						else:
 							temp.append(str(j))
 					except:
-						return
+						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -264,6 +274,7 @@ def login():
 		for i in rv:
 			store.append(str(i))
 		result = ",".join(store)
+		return redirect(url_for('search'))
 
     return render_template('login.html', error=error, loggedin=loggedin, result=result)
 
