@@ -123,6 +123,7 @@ def search():
 	store = []
 	advanced1 = ""
 	advanced2 = ""
+	somedict = {}
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
@@ -153,22 +154,51 @@ def search():
     #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 #    				rv = cur.fetchall()
 
-			store = []
+			# store = []
+			# for i in rv[:20]:
+			# 	temp = []
+			# 	for j in i:
+			# 		try:
+			# 			if type(j) == "string":
+			# 				temp.append(str(j.encode('ascii', 'ignore')))
+			# 			else:
+			# 				temp.append(str(j))
+			# 		except:
+			# 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+   #                      			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			# 			return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
+			# 	store.append(": ".join(temp))
+			# advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature yo"
+			# advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			name = []
+			xcoord = []
+			ycoord = []
 			for i in rv[:20]:
-				temp = []
+				count = 1
 				for j in i:
 					try:
 						if type(j) == "string":
-							temp.append(str(j.encode('ascii', 'ignore')))
-						else:
-							temp.append(str(j))
-					except:
-						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-                        			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
-				store.append(": ".join(temp))
-			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature yo"
-			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+							if count%3 is 0:
+								xcoord.append(j)
+							elif count%4 is 0:
+								ycoord.append(j)
+							else:
+								name.append(str(j.encode('ascii', 'ignore')))
+			 			else:
+			 				if count%3 is 0:
+								xcoord.append(j)
+							elif count%4 is 0:
+								ycoord.append(j)
+							else:
+								name.append(str(j))
+			 		except:
+			 			somedict={	"name"		:	[i for i in name],
+									"xcoord"	:	[x for x in xcoord],
+									"ycoord"	:	[y for y in ycoord]
+						}
+			 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			movieName = movieName.capitalize()
@@ -186,7 +216,7 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2)
+						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -220,14 +250,14 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
+						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2)
+        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
