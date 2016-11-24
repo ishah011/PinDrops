@@ -1,7 +1,7 @@
 from __future__ import print_function
 from flask import Flask
 from flask_mysqldb import MySQL
-from flask import render_template, request, session, flash, redirect, url_for
+from flask import render_template, request, session, flash, redirect, url_for, json, jsonify
 from flask_debugtoolbar import DebugToolbarExtension 
 
 import sys
@@ -17,8 +17,6 @@ app.config['SECRET_KEY'] = 314159265358979
 toolbar = DebugToolbarExtension(app)
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
-#app.config['GOOGLEMAPS_KEY'] = "AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI"
-#GoogleMaps(app)
 
 mysql = MySQL(app)
 app.config['MYSQL_USER'] = 'root'
