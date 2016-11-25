@@ -70,7 +70,14 @@ def getRevenueAlt(movieList):
             if rev is None:
                 continue
             else:
-                rvRevs.append(rev)
+		rev = rev.replace(",", "")
+		rev = rev[0] + " " + rev[1:]
+		rev = rev.encode('ascii', 'ignore').decode('ascii')
+		print (rev, file=sys.stderr)
+		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
+		print (rev, file=sys.stderr)
+
+                rvRevs.append(rev[0])
                 rvNames.append(lookup[name])
     else:
         rvRevs.append(-1)
