@@ -9,6 +9,8 @@ import urllib2
 import urllib
 import json
 import googlemaps
+import plotly.plotly as py
+import plotly.graph_objs as go
 
 app = Flask(__name__)
 
