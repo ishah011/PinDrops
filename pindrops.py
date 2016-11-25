@@ -72,7 +72,7 @@ def getRevenueAlt(movieList):
             else:
 		rev = rev.replace(",", "")
 		rev = rev[0] + " " + rev[1:]
-		rev = rev.encode('ascii', 'ignore').decode('ascii')
+		#rev = rev.encode('ascii', 'ignore').decode('ascii')
 		print (rev, file=sys.stderr)
 		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
 		print (rev, file=sys.stderr)
