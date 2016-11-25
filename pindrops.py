@@ -126,6 +126,46 @@ def getAdmission(movieList):
     
     return rv
 
+def getBudget(movieList):
+    rvRevs = []
+    rvNames = []
+    conn = mysql.connection
+    lookup = {}
+    searchString = ""
+
+    for movie in movieList:
+        searchString = searchString + str(movie[0]) + " OR movie_id = "
+        lookup[movie[0]] = movie[1]
+
+    searchString = searchString[:-15]
+
+    db = conn.cursor()
+    db.execute("""SELECT info, movie_id FROM `movie_info` WHERE (movie_id = {}) AND info_type_id = 105 ORDER BY movie_id ASC""".format(searchString))
+    result = db.fetchall()
+    if len(result) > 0:
+        for rtRev in result:
+            rev = rtRev[0]
+            name = rtRev[1]
+            if rev is None:
+                continue
+            else:
+		rev = rev.replace(",", "")
+		rev = rev[0] + " " + rev[1:]
+		#rev = rev.encode('ascii', 'ignore').decode('ascii')
+		#print (rev, file=sys.stderr)
+		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
+		#print (rev, file=sys.stderr)
+
+                rvRevs.append(rev[0])
+                rvNames.append(lookup[name])
+    else:
+        rvRevs.append(-1)
+        rvNames.append('NA')
+
+    rv = [rvNames, rvRevs]
+    
+    return rv
+
 def locationAnalysis():
     rv = []
     conn = mysql.connection
@@ -340,7 +380,7 @@ def search():
 			cur.execute("""SELECT m.id, title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
-			testReturn = getAdmission(rv)
+			testReturn = getBudget(rv)
 			print (testReturn, file=sys.stderr)
 
 			store = []
