@@ -166,6 +166,37 @@ def getBudget(movieList):
     
     return rv
 
+def getGenres(movieList):
+    rvCount = []
+    rvGenres = []
+    conn = mysql.connection
+    lookup = {}
+    searchString = ""
+
+    for movie in movieList:
+        searchString = searchString + str(movie[0]) + " OR movie_id = "
+
+    searchString = searchString[:-15]
+
+    db = conn.cursor()
+    db.execute("""SELECT info FROM `movie_info` WHERE (movie_id = {}) AND info_type_id = 3 ORDER BY movie_id ASC""".format(searchString))
+    result = db.fetchall()
+    if len(result) > 0:
+        for rtRev in result:
+            lookup[rtRev[0]] = lookup.get(rtRev[0], 0) + 1
+    else:
+        rvCount.append(-1)
+        rvGenres.append('NA')
+
+    for key, value in lookup.iteritems():
+        rvGenres.append(str(key))
+        rvCount.append(value)
+
+    rv = [rvGenres, rvCount]
+    
+    return rv
+
+
 def locationAnalysis():
     rv = []
     conn = mysql.connection
@@ -380,7 +411,7 @@ def search():
 			cur.execute("""SELECT m.id, title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
-			testReturn = getBudget(rv)
+			testReturn = getGenres(rv)
 			print (testReturn, file=sys.stderr)
 
 			store = []
