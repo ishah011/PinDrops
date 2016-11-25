@@ -28,26 +28,6 @@ app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8f\xe2\r"""
 
 def getRevenue(movieList):
-    rv = []
-    conn = mysql.connection
-
-    for movie in movieList:
-        movieID = movie[0]
-        db = conn.cursor()
-        db.execute("""SELECT info FROM `movie_info` WHERE movie_id = {} AND info_type_id = 107""".format(movieID))
-        result = db.fetchall()
-        if len(result) > 0:
-            rev = result[0][0]
-            if rev is None:
-                rv.append(-1)
-            else:
-                rv.append(rev)
-        else:
-            rv.append(-1)
-
-    return rv
-
-def getRevenueAlt(movieList):
     rvRevs = []
     rvNames = []
     conn = mysql.connection
@@ -87,7 +67,7 @@ def getRevenueAlt(movieList):
     
     return rv
 
-def getAdmission(movieList):
+def getAdmissions(movieList):
     rvRevs = []
     rvNames = []
     conn = mysql.connection
@@ -126,7 +106,7 @@ def getAdmission(movieList):
     
     return rv
 
-def getBudget(movieList):
+def getBudgets(movieList):
     rvRevs = []
     rvNames = []
     conn = mysql.connection
