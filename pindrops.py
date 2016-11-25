@@ -27,6 +27,59 @@ app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8f\xe2\r"""
 
+def getRevenue(movieList):
+    rv = []
+    conn = mysql.connection
+
+    for movie in movieList:
+        movieID = movie[0]
+        db = conn.cursor()
+        db.execute("""SELECT info FROM `movie_info` WHERE movie_id = {} AND info_type_id = 107""".format(movieID))
+        result = db.fetchall()
+        if len(result) > 0:
+            rev = result[0][0]
+            if rev is None:
+                rv.append(-1)
+            else:
+                rv.append(rev)
+        else:
+            rv.append(-1)
+
+    return rv
+
+def getRevenueAlt(movieList):
+    rvRevs = []
+    rvNames = []
+    conn = mysql.connection
+    lookup = {}
+    searchString = ""
+
+    for movie in movieList:
+        searchString = searchString + str(movie[0]) + " OR movie_id = "
+        lookup[movie[0]] = movie[1]
+
+    searchString = searchString[:-15]
+
+    db = conn.cursor()
+    db.execute("""SELECT info, movie_id FROM `movie_info` WHERE (movie_id = {}) AND info_type_id = 107 ORDER BY movie_id ASC""".format(searchString))
+    result = db.fetchall()
+    if len(result) > 0:
+        for rtRev in result:
+            rev = rtRev[0]
+            name = rtRev[1]
+            if rev is None:
+                continue
+            else:
+                rvRevs.append(rev)
+                rvNames.append(lookup[name])
+    else:
+        rvRevs.append(-1)
+        rvNames.append('NA')
+
+    rv = [rvNames, rvRevs]
+    
+    return rv
+
 def locationAnalysis():
     rv = []
     conn = mysql.connection
@@ -238,8 +291,12 @@ def search():
 				country = "UK"
 			if country == 'Us' or country == 'America' or country == 'US':
 				country = 'USA'
-			cur.execute("""SELECT title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
+			cur.execute("""SELECT m.id, title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
+
+			testReturn = getRevenueAlt(rv)
+			print (testReturn, file=sys.stderr)
+
 			store = []
 			for i in rv[:20]:
 				temp = []
