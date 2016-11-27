@@ -270,7 +270,7 @@ def geocode(searchString):
         print ('NO MATCHING LOCATION', file=sys.stderr)
 
 
-def getGraphs(rv, admissions, revenue, budget, genres):
+def getGraphs(rv, values):
 	#ADMISSIONS
 	dat1 = getAdmissions(rv)
 	data = [go.Bar(
@@ -281,7 +281,7 @@ def getGraphs(rv, admissions, revenue, budget, genres):
 	    title='Admissions',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+	values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
 	
 	#REVENUE
 	dat2 = getRevenue(rv)
@@ -293,7 +293,7 @@ def getGraphs(rv, admissions, revenue, budget, genres):
 	    title='Revenue',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+	values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
 	#BUDGETS
 	dat3 = getBudgets(rv)
@@ -301,11 +301,11 @@ def getGraphs(rv, admissions, revenue, budget, genres):
 			x= dat3[0],
    			y= dat3[1]
 		)]
-		layout = go.Layout(
+	layout = go.Layout(
 	    title='Budgets',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+	values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
 	#GENRES
 	dat4 = getGenres(rv)
@@ -314,8 +314,9 @@ def getGraphs(rv, admissions, revenue, budget, genres):
     		'values': dat4[1],
     		'type': 'pie'}],
 		'layout': {'title': 'Genres filmed'}
-			}
-	genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	}
+	values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	return values
 
 @app.route('/')
 def index(store=None):
@@ -441,12 +442,12 @@ def search():
 			   #  			'layout': {'title': 'Genres filmed'}
 			   #   			}
 						# genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
-
-						getGraphs(rv, admissions, revenue, budget, genres)
+						values = [admissions, revenue, budget, genres]
+						new_vals = getGraphs(rv, values)
 
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
+			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -497,8 +498,9 @@ def search():
    #  			'layout': {'title': 'Genres filmed'}
    #   			}
 			# genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
-
-			getGraphs(rv, admissions, revenue, budget, genres)
+			
+			values = [admissions, revenue, budget, genres]
+			new_vals = getGraphs(rv, values)
 
 
 
