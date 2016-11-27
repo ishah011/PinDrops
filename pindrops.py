@@ -354,34 +354,23 @@ def search():
 						}
 						dat = getAdmissions(rv)
 						data = [go.Bar(
-			        			x= dat[0],
-			           			y= dat[1]
-			    			)]
-						layout = go.Layout(
-						    title='Admissions',
-						)
-						fig = go.Figure(data=data, layout=layout)
-						admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
-						
+            						x= dat[0],
+           						y= dat[1]
+    						)]
+
 						dat = getRevenue(rv)
 						data = [go.Bar(
 							x= dat[0],
 							y= dat[1]
 						)]
-						layout = go.Layout(
-						    title='Revenue',
-						)
-						revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+						revenue = tls.get_embed(py.plot(data, filename='revenue', fileopt = 'overwrite'))
 
 						dat = getBudgets(rv)
 						data = [go.Bar(
 			        			x= dat[0],
 			           			y= dat[1]
-			    		)]
-			    		layout = go.Layout(
-						    title='Budgets',
-						)
-						budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+			    			)]
+						budget = tls.get_embed(py.plot(data, filename='budget', fileopt='overwrite'))
 
 						dat = getGenres(rv)
 						fig = {
@@ -392,7 +381,6 @@ def search():
 			     		}
 						genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 
-						admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
@@ -410,31 +398,21 @@ def search():
         			x= dat[0],
            			y= dat[1]
     			)]
-			layout = go.Layout(
-			    title='Admissions',
-			)
-			fig = go.Figure(data=data, layout=layout)
-			admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+			admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
 			
 			dat = getRevenue(rv)
 			data = [go.Bar(
 				x= dat[0],
 				y= dat[1]
 			)]
-			layout = go.Layout(
-			    title='Revenue',
-			)
-			revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+			revenue = tls.get_embed(py.plot(data, filename='revenue', fileopt = 'overwrite'))
 
 			dat = getBudgets(rv)
 			data = [go.Bar(
         			x= dat[0],
            			y= dat[1]
     		)]
-    		layout = go.Layout(
-			    title='Budgets',
-			)
-			budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+			budget = tls.get_embed(py.plot(data, filename='budget', fileopt='overwrite'))
 
 			dat = getGenres(rv)
 			fig = {
