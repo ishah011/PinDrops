@@ -371,25 +371,27 @@ def search():
 						layout = go.Layout(
 						    title='Revenue',
 						)
+						fig = go.Figure(data=data, layout=layout)
 						revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
 						dat = getBudgets(rv)
 						data = [go.Bar(
 			        			x= dat[0],
 			           			y= dat[1]
-			    		)]
-			    		layout = go.Layout(
+			    			)]
+			    			layout = go.Layout(
 						    title='Budgets',
 						)
+						fig = go.Figure(data=data, layout=layout)
 						budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
 						dat = getGenres(rv)
 						fig = {
 			    			'data': [{'labels': dat[0],
-			            	'values': dat[1],
-			            	'type': 'pie'}],
+			            		'values': dat[1],
+			            		'type': 'pie'}],
 			    			'layout': {'title': 'Genres filmed'}
-			     		}
+			     			}
 						genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
@@ -404,10 +406,10 @@ def search():
 			}
 
 			#CODE TO RETRIEVE DATA GRAPHS
-			dat = getAdmissions(rv)
+			dat1 = getAdmissions(rv)
 			data = [go.Bar(
-        			x= dat[0],
-           			y= dat[1]
+        			x= dat1[0],
+           			y= dat1[1]
     			)]
 			layout = go.Layout(
 			    title='Admissions',
@@ -415,33 +417,35 @@ def search():
 			fig = go.Figure(data=data, layout=layout)
 			admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
 			
-			dat = getRevenue(rv)
+			dat2 = getRevenue(rv)
 			data = [go.Bar(
-				x= dat[0],
-				y= dat[1]
+				x= dat2[0],
+				y= dat2[1]
 			)]
 			layout = go.Layout(
 			    title='Revenue',
 			)
+			fig = go.Figure(data=data, layout=layout)
 			revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
-			dat = getBudgets(rv)
+			dat3 = getBudgets(rv)
 			data = [go.Bar(
-        			x= dat[0],
-           			y= dat[1]
-    		)]
-    		layout = go.Layout(
+        			x= dat3[0],
+           			y= dat3[1]
+    			)]
+    			layout = go.Layout(
 			    title='Budgets',
 			)
+			fig = go.Figure(data=data, layout=layout)
 			budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
-			dat = getGenres(rv)
+			dat4 = getGenres(rv)
 			fig = {
-    			'data': [{'labels': dat[0],
-            	'values': dat[1],
-            	'type': 'pie'}],
+    			'data': [{'labels': dat4[0],
+            		'values': dat4[1],
+            		'type': 'pie'}],
     			'layout': {'title': 'Genres filmed'}
-     		}
+     			}
 			genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 
 
