@@ -11,6 +11,10 @@ import json
 import googlemaps
 import plotly.plotly as py
 import plotly.graph_objs as go
+import plotly
+import plotly.tools as tls
+
+plotly.tools.set_credentials_file(username='PinDroppers', api_key='4c9lIQK4LJbxCvxvDCM6')
 
 app = Flask(__name__)
 
@@ -276,6 +280,7 @@ def search():
 	advanced1 = ""
 	advanced2 = ""
 	somedict = {}
+	admissions = ""
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
@@ -286,7 +291,7 @@ def search():
 			fname = fname.capitalize()
 			lname = request.form['lastName']
 			lname = lname.capitalize()
-			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
+			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
 #    		        repeat = False
@@ -330,27 +335,47 @@ def search():
 				for j in i:
 					try:
 						if type(j) == "string":
-							if count%3 is 0:
+							if count%4 is 0:
 								xcoord.append(j)
-							elif count%4 is 0:
+								count += 1
+							elif count%5 is 0:
 								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
 							else:
 								name.append(str(j.encode('ascii', 'ignore')))
+								count += 1
 			 			else:
 			 				if count%3 is 0:
 								xcoord.append(j)
+								count += 1
 							elif count%4 is 0:
 								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
 							else:
 								name.append(str(j))
+								count += 1
 			 		except:
-			 			somedict={	"name"		:	[i for i in name],
+			 			somedict={		"name"		:	[i for i in name],
 									"xcoord"	:	[x for x in xcoord],
 									"ycoord"	:	[y for y in ycoord]
 						}
-			 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
+						dat = getAdmissions(rv)
+						data = [go.Bar(
+            						x= dat[0],
+           						y= dat[1]
+    						)]
+
+						admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
+						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
+			store = name
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			movieName = movieName.capitalize()
@@ -368,7 +393,7 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
+						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -406,14 +431,14 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
+						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict)
+        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():

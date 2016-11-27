@@ -6,13 +6,8 @@
 <script type ="text/javascript"  src="{{url_for('static', filename='search.js')}}"></script>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='map.css') }}">
 <script type ="text/javascript"  src="{{url_for('static', filename='map.js')}}"></script>
-
 <center>
 
-<div id="map"></div>
-<script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI&callback=initMap">
-</script>
 
 <form action="{{ url_for('search') }}" method=post class="search container">
 <select name=selection class="div-toggle" data-target=".my-info-1">
@@ -60,24 +55,29 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 
 </form>
 
-
-
-
+</center>
+<center>
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI&callback=initMap">
+</script>
+<div id="map"></div>
 </center>
 {% if store %}
-<div class="result">
-{% for item in store %}
-{{item}}
-{% endfor %}
-</div>
-<div class="map">
-</div>
-<div class="advanced">
-<br>
-{{advanced1}}
-<br>
-{{advanced2}}
-</div>
+	<div class="result">
+		{% for item in store %}
+			{{item}}
+		{% endfor %}
+	</div>
+<!--<div class="map">
+</div>-->
+	<div class="advanced">
+		<br>
+		{{admissions|safe}}
+		<br>
+		{{advanced1}}
+		<br>
+		{{advanced2}}
+	</div>
 {% endif %}
 {% endblock %}
 

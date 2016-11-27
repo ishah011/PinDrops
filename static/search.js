@@ -7,3 +7,5 @@ $(document).on('change', '.div-toggle', function() {
 $(document).ready(function(){
 	$('.div-toggle').trigger('change');
 });
+
+
