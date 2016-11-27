@@ -354,23 +354,34 @@ def search():
 						}
 						dat = getAdmissions(rv)
 						data = [go.Bar(
-            						x= dat[0],
-           						y= dat[1]
-    						)]
-
+			        			x= dat[0],
+			           			y= dat[1]
+			    			)]
+						layout = go.Layout(
+						    title='Admissions',
+						)
+						fig = go.Figure(data=data, layout=layout)
+						admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+						
 						dat = getRevenue(rv)
 						data = [go.Bar(
 							x= dat[0],
 							y= dat[1]
 						)]
-						revenue = tls.get_embed(py.plot(data, filename='revenue', fileopt = 'overwrite'))
+						layout = go.Layout(
+						    title='Revenue',
+						)
+						revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
 						dat = getBudgets(rv)
 						data = [go.Bar(
 			        			x= dat[0],
 			           			y= dat[1]
-			    			)]
-						budget = tls.get_embed(py.plot(data, filename='budget', fileopt='overwrite'))
+			    		)]
+			    		layout = go.Layout(
+						    title='Budgets',
+						)
+						budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
 						dat = getGenres(rv)
 						fig = {
@@ -398,21 +409,31 @@ def search():
         			x= dat[0],
            			y= dat[1]
     			)]
-			admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
+			layout = go.Layout(
+			    title='Admissions',
+			)
+			fig = go.Figure(data=data, layout=layout)
+			admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
 			
 			dat = getRevenue(rv)
 			data = [go.Bar(
 				x= dat[0],
 				y= dat[1]
 			)]
-			revenue = tls.get_embed(py.plot(data, filename='revenue', fileopt = 'overwrite'))
+			layout = go.Layout(
+			    title='Revenue',
+			)
+			revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
 			dat = getBudgets(rv)
 			data = [go.Bar(
         			x= dat[0],
            			y= dat[1]
     		)]
-			budget = tls.get_embed(py.plot(data, filename='budget', fileopt='overwrite'))
+    		layout = go.Layout(
+			    title='Budgets',
+			)
+			budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
 			dat = getGenres(rv)
 			fig = {
