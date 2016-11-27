@@ -282,6 +282,8 @@ def search():
 	somedict = {}
 	admissions = ""
 	revenue = ""
+	budget = ""
+	genres = ""
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
