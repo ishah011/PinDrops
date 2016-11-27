@@ -281,6 +281,7 @@ def search():
 	advanced2 = ""
 	somedict = {}
 	admissions = ""
+	revenue = ""
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
@@ -374,8 +375,33 @@ def search():
 						admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
+			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue)
 			store = name
+			
+			#JSON FOR GOOGLE MAPS MARKERS
+			somedict={		"name"		:	[i for i in name],
+						"xcoord"	:	[x for x in xcoord],
+						"ycoord"	:	[y for y in ycoord]
+			}
+
+			#CODE TO RETRIEVE DATA GRAPHS
+			dat = getAdmissions(rv)
+			data = [go.Bar(
+        			x= dat[0],
+           			y= dat[1]
+    			)]
+			admissions = tls.get_embed(py.plot(data, filename='admissions', fileopt = 'overwrite'))
+			
+			dat = getRevenue(rv)
+			data = [go.Bar(
+				x= dat[0],
+				y= dat[1]
+			)]
+			revenue = tls.get_embed(py.plot(data, filename='revenue', fileopt = 'overwrite'))
+
+
+
+			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			movieName = movieName.capitalize()
@@ -393,7 +419,7 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
+						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue)
 				store.append(": ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
@@ -431,14 +457,14 @@ def search():
 					except:
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
+						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue)
 				store.append(" - ".join(temp))
 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
                         advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
 
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions)
+        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue)
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
