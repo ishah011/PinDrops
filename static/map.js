@@ -1,32 +1,66 @@
+ 
 function initMap() {
-   var locations = [
-      ['Bondi Beach', -33.890542, 151.274856, 4],
-      ['Bondi Beach', -33.890542, 151.274856, 6],
-      ['Coogee Beach', -33.923036, 151.259052, 5],
-      ['Cronulla Beach', -34.028249, 151.157507, 3],
-      ['Manly Beach', -33.80010128657071, 151.28747820854187, 2],
-      ['Maroubra Beach', -33.950198, 151.259302, 1]
-    ];
 
-    var map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 10,
-      center: new google.maps.LatLng(-33.92, 151.25),
+var jsonString = '[{"name": ["Accepted", "Chapman University - One University Drive, Orange, California, USA", "Accepted", "Los Angeles, California, USA", "Accepted", "Veterans Hospital - 1611 Plummer Street, North Hills, Los Angeles, California, USA", "Accepted", "Walter Reed Middle School - 4525 Irvine Avenue, North Hollywood, Los Angeles, California, USA", "All I See Is You", "Bangkok, Thailand", "All I See Is You", "Barcelona, Spain", "All I See Is You", "Phuket, Thailand", "All I See Is You", "Thailand", "All I See Is You", "Spain"], "ycoord": [-117.85274505615234, -118.24368286132812, -118.47880554199219, -118.38660430908203, 100.50176239013672, 2.17340350151062, 98.33808898925781, 100.99253845214844, -3.74921989440918], "xcoord": [33.79330825805664, 34.0522346496582, 34.24287033081055, 34.15259552001953, 13.7563304901123, 41.38506317138672, 7.95193290710449, 15.87003231048584, 40.46366882324219]}]';
+
+var myData = JSON.parse(jsonString);
+var xcoordData = [];
+var ycoordData = [];
+var nameData = [];
+
+$(document).ready(function() {
+    $.each(myData, function() {
+    	xcoordData = this.xcoord;
+	ycoordData = this.ycoord;
+        nameData = this.name;
+    });
+});
+
+var xcoordStr = String(xcoordData);
+var arrayXcoord = xcoordStr.split(',');
+var ycoordStr = String(ycoordData);
+var arrayYcoord = ycoordStr.split(',');
+
+
+var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 1,
+      center: new google.maps.LatLng(0, 0),
       mapTypeId: google.maps.MapTypeId.ROADMAP
     });
 
     var infowindow = new google.maps.InfoWindow();
 
     var marker, i;
+	
 
-    for (i = 0; i < locations.length; i++) {  
+/* for (i = 0; i < arrayXcoord.length; i++) {  
+    var latLng = new google.maps.LatLng(arrayXcoord[i], arrayYcoord[i]);
+    
       marker = new google.maps.Marker({
-        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        position: latLng,
+        map: map	
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(nameData[i]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+
+}
+
+}*/
+
+ for (i = 0; i < arrayXcoord.length; i++) {  
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(arrayXcoord[i], arrayYcoord[i]),
         map: map
       });
 
       google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(locations[i][0]);
+          infowindow.setContent(nameData[i]);
           infowindow.open(map, marker);
         }
       })(marker, i));
