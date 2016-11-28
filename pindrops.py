@@ -270,7 +270,7 @@ def geocode(searchString):
         print ('NO MATCHING LOCATION', file=sys.stderr)
 
 
-# def getGraphs(rv, values):
+def getGraphs(rv, values):
 # 	#ADMISSIONS
 # 	dat1 = getAdmissions(rv)
 # 	data = [go.Bar(
@@ -317,7 +317,7 @@ def geocode(searchString):
 # 	}
 # 	values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 # 	return values
-return values
+	return values
 
 @app.route('/')
 def index(store=None):
@@ -385,10 +385,10 @@ def search():
 								name.append(str(j.encode('ascii', 'ignore')))
 								count += 1
 			 			else:
-			 				if count%3 is 0:
+			 				if count%4 is 0:
 								xcoord.append(j)
 								count += 1
-							elif count%4 is 0:
+							elif count%5 is 0:
 								ycoord.append(j)
 								count += 1
 							elif (count+2)%3 is 0:
@@ -402,6 +402,8 @@ def search():
 									"xcoord"	:	[x for x in xcoord],
 									"ycoord"	:	[y for y in ycoord]
 						}
+						with open('static/markers.txt', 'w') as outfile:
+							json.dump(somedict, outfile)
 						# dat = getAdmissions(rv)
 						# data = [go.Bar(
 			   #      			x= dat[0],
@@ -456,6 +458,8 @@ def search():
 						"xcoord"	:	[x for x in xcoord],
 						"ycoord"	:	[y for y in ycoord]
 			}
+			with open('static/markers.txt', 'w') as outfile:
+				json.dump(somedict, outfile)
 
 			#CODE TO RETRIEVE DATA GRAPHS
 			# dat1 = getAdmissions(rv)
