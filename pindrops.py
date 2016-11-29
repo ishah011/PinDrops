@@ -344,7 +344,6 @@ def search():
 			lname = request.form['lastName']
 			lname = lname.capitalize()
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
-#			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
 			rv = cur.fetchall()
 #    		        repeat = False
 
@@ -383,7 +382,6 @@ def search():
 								count += 1
 								continue
 							else:
-								#temp = temp + str(j.encode('ascii', 'ignore'))
 								if count%3 is 0:
 									temp2 = str(j.encode('ascii', 'ignore'))
 									name.append(temp1 + " - " + temp2)
@@ -403,7 +401,6 @@ def search():
 								count += 1
 								continue
 							else:
-								#temp = temp + str(j)
 								if count%3 is 0:
 									temp2 = str(j)
 									name.append(temp1 + " - " + temp2)
@@ -419,47 +416,8 @@ def search():
 						}
 						with open('static/markers.txt', 'w') as outfile:
 							json.dump(somedict, outfile)
-						# dat = getAdmissions(rv)
-						# data = [go.Bar(
-			   #      			x= dat[0],
-			   #         			y= dat[1]
-			   #  			)]
-						# layout = go.Layout(
-						#     title='Admissions',
-						# )
-						# fig = go.Figure(data=data, layout=layout)
-						# admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
-						
-						# dat = getRevenue(rv)
-						# data = [go.Bar(
-						# 	x= dat[0],
-						# 	y= dat[1]
-						# )]
-						# layout = go.Layout(
-						#     title='Revenue',
-						# )
-						# fig = go.Figure(data=data, layout=layout)
-						# revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
-						# dat = getBudgets(rv)
-						# data = [go.Bar(
-			   #      			x= dat[0],
-			   #         			y= dat[1]
-			   #  			)]
-			   #  			layout = go.Layout(
-						#     title='Budgets',
-						# )
-						# fig = go.Figure(data=data, layout=layout)
-						# budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
-
-						# dat = getGenres(rv)
-						# fig = {
-			   #  			'data': [{'labels': dat[0],
-			   #          		'values': dat[1],
-			   #          		'type': 'pie'}],
-			   #  			'layout': {'title': 'Genres filmed'}
-			   #   			}
-						# genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+						#GET GRAPHS
 						values = [admissions, revenue, budget, genres]
 						new_vals = getGraphs(rv, values)
 
@@ -475,50 +433,7 @@ def search():
 			}
 			with open('static/markers.txt', 'w') as outfile:
 				json.dump(somedict, outfile)
-
-			#CODE TO RETRIEVE DATA GRAPHS
-			# dat1 = getAdmissions(rv)
-			# data = [go.Bar(
-   #      			x= dat1[0],
-   #         			y= dat1[1]
-   #  			)]
-			# layout = go.Layout(
-			#     title='Admissions',
-			# )
-			# fig = go.Figure(data=data, layout=layout)
-			# admissions = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
-			
-			# dat2 = getRevenue(rv)
-			# data = [go.Bar(
-			# 	x= dat2[0],
-			# 	y= dat2[1]
-			# )]
-			# layout = go.Layout(
-			#     title='Revenue',
-			# )
-			# fig = go.Figure(data=data, layout=layout)
-			# revenue = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
-
-			# dat3 = getBudgets(rv)
-			# data = [go.Bar(
-   #      			x= dat3[0],
-   #         			y= dat3[1]
-   #  			)]
-   #  			layout = go.Layout(
-			#     title='Budgets',
-			# )
-			# fig = go.Figure(data=data, layout=layout)
-			# budget = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
-
-			# dat4 = getGenres(rv)
-			# fig = {
-   #  			'data': [{'labels': dat4[0],
-   #          		'values': dat4[1],
-   #          		'type': 'pie'}],
-   #  			'layout': {'title': 'Genres filmed'}
-   #   			}
-			# genres = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
-			
+			#GET GRAPHS
 			values = [admissions, revenue, budget, genres]
 			new_vals = getGraphs(rv, values)
 
