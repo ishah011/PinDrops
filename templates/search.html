@@ -73,13 +73,25 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 </div>-->
 	<div class="advanced">
 		<br>
-		{{admissions|safe}}
+		<button onclick="admissions()">View Admissions</button>
+		<div class= "graphs" id="admissions">
+			{{admissions|safe}}
+		</div>
 		<br>
-		{{revenue|safe}}
+		<button onclick="revenue()">View Revenue</button>
+		<div class= "graphs" id="revenue">
+			{{revenue|safe}}
+		</div>
 		<br>
-		{{budget|safe}}
+		<button onclick="budget()">View Budget</button>
+		<div class= "graphs" id="budget">
+			{{budget|safe}}
+		</div>
 		<br>
-		{{genres|safe}}
+		<button onclick="genres()">View Genres</button>
+		<div class= "graphs" id = "genres">
+			{{genres|safe}}
+		</div>
 		<br>
 		{{advanced1}}
 		<br>
