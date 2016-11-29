@@ -369,6 +369,8 @@ def search():
 			ycoord = []
 			for i in rv[:20]:
 				count = 1
+				temp1 = ""
+				temp2 = ""
 				for j in i:
 					try:
 						if type(j) == "string":
@@ -382,7 +384,14 @@ def search():
 								count += 1
 								continue
 							else:
-								name.append(str(j.encode('ascii', 'ignore')))
+								#temp = temp + str(j.encode('ascii', 'ignore'))
+								if count%3 is 0:
+									temp2 = str(j.encode('ascii', 'ignore'))
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j.encode('ascii', 'ignore'))
 								count += 1
 			 			else:
 			 				if count%4 is 0:
@@ -395,7 +404,14 @@ def search():
 								count += 1
 								continue
 							else:
-								name.append(str(j))
+								#temp = temp + str(j)
+								if count%3 is 0:
+									temp2 = str(j)
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j)
 								count += 1
 			 		except:
 			 			somedict={		"name"		:	[i for i in name],
