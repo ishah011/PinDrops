@@ -443,24 +443,98 @@ def search():
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			movieName = movieName.capitalize()
-			cur.execute("""SELECT DISTINCT m.title, f.location FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
+			cur.execute("""SELECT DISTINCT m.id, m.title, f.location, f.latitude, f.longitude FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
-			store = []
-			for i in rv:
-				temp = []
+			# store = []
+			# for i in rv:
+			# 	temp = []
+			# 	for j in i:
+			# 		try:
+			# 			if type(j) == "string":
+			# 				temp.append(str(j.encode('ascii', 'ignore')))
+			# 			else:
+			# 				temp.append(str(j))
+			# 		except:
+			# 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			# 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			# 			return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
+			# 	store.append(": ".join(temp))
+			# advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+   #                      advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+   			name = []
+			xcoord = []
+			ycoord = []
+			for i in rv[:20]:
+				count = 1
+				temp1 = ""
+				temp2 = ""
 				for j in i:
 					try:
 						if type(j) == "string":
-							temp.append(str(j.encode('ascii', 'ignore')))
-						else:
-							temp.append(str(j))
-					except:
+							if count%4 is 0:
+								xcoord.append(j)
+								count += 1
+							elif count%5 is 0:
+								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
+							else:
+								if count%3 is 0:
+									temp2 = str(j.encode('ascii', 'ignore'))
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j.encode('ascii', 'ignore'))
+								count += 1
+			 			else:
+			 				if count%4 is 0:
+								xcoord.append(j)
+								count += 1
+							elif count%5 is 0:
+								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
+							else:
+								if count%3 is 0:
+									temp2 = str(j)
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j)
+								count += 1
+			 		except:
+			 			somedict={		"name"		:	[i for i in name],
+									"xcoord"	:	[x for x in xcoord],
+									"ycoord"	:	[y for y in ycoord]
+						}
+						with open('static/markers.txt', 'w') as outfile:
+							json.dump(somedict, outfile)
+
+						#GET GRAPHS
+						values = [admissions, revenue, budget, genres]
+						new_vals = getGraphs(rv, values)
+
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
-				store.append(": ".join(temp))
-			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-                        advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+			store = name
+			
+			#JSON FOR GOOGLE MAPS MARKERS
+			somedict={		"name"		:	[i for i in name],
+						"xcoord"	:	[x for x in xcoord],
+						"ycoord"	:	[y for y in ycoord]
+			}
+			with open('static/markers.txt', 'w') as outfile:
+				json.dump(somedict, outfile)
+			#GET GRAPHS
+			values = [admissions, revenue, budget, genres]
+			new_vals = getGraphs(rv, values)
 
 		elif request.form['selection'] == 'Location':
 			city = request.form['cityName']
@@ -483,22 +557,96 @@ def search():
 			testReturn = getGenres(rv)
 			print (testReturn, file=sys.stderr)
 
-			store = []
+			# store = []
+			# for i in rv[:20]:
+			# 	temp = []
+			# 	for j in i:
+			# 		try:
+			# 			if type(j) == 'string':
+			# 				temp.append(str(j.encode('ascii', 'ignore')))
+			# 			else:
+			# 				temp.append(str(j))
+			# 		except:
+			# 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+			# 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			# 			return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
+			# 	store.append(" - ".join(temp))
+			# advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
+   #                      advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+   			name = []
+			xcoord = []
+			ycoord = []
 			for i in rv[:20]:
-				temp = []
+				count = 1
+				temp1 = ""
+				temp2 = ""
 				for j in i:
 					try:
-						if type(j) == 'string':
-							temp.append(str(j.encode('ascii', 'ignore')))
-						else:
-							temp.append(str(j))
-					except:
+						if type(j) == "string":
+							if count%4 is 0:
+								xcoord.append(j)
+								count += 1
+							elif count%5 is 0:
+								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
+							else:
+								if count%3 is 0:
+									temp2 = str(j.encode('ascii', 'ignore'))
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j.encode('ascii', 'ignore'))
+								count += 1
+			 			else:
+			 				if count%4 is 0:
+								xcoord.append(j)
+								count += 1
+							elif count%5 is 0:
+								ycoord.append(j)
+								count += 1
+							elif (count+2)%3 is 0:
+								count += 1
+								continue
+							else:
+								if count%3 is 0:
+									temp2 = str(j)
+									name.append(temp1 + " - " + temp2)
+									temp1 = ""
+									temp2 = ""
+								else:
+									temp1 = str(j)
+								count += 1
+			 		except:
+			 			somedict={		"name"		:	[i for i in name],
+									"xcoord"	:	[x for x in xcoord],
+									"ycoord"	:	[y for y in ycoord]
+						}
+						with open('static/markers.txt', 'w') as outfile:
+							json.dump(somedict, outfile)
+
+						#GET GRAPHS
+						values = [admissions, revenue, budget, genres]
+						new_vals = getGraphs(rv, values)
+
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-						advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-						return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
-				store.append(" - ".join(temp))
-			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-                        advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
+			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+			store = name
+			
+			#JSON FOR GOOGLE MAPS MARKERS
+			somedict={		"name"		:	[i for i in name],
+						"xcoord"	:	[x for x in xcoord],
+						"ycoord"	:	[y for y in ycoord]
+			}
+			with open('static/markers.txt', 'w') as outfile:
+				json.dump(somedict, outfile)
+			#GET GRAPHS
+			values = [admissions, revenue, budget, genres]
+			new_vals = getGraphs(rv, values)
 
 		else:
 		 	error = "Please choose an option below"
