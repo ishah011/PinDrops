@@ -57,5 +57,8 @@ var map = new google.maps.Map(document.getElementById('map'), {
         }
       })(marker, i));
     }}
-
+google.maps.event.trigger(map, 'resize');
 }
+
+google.maps.event.addDomListener(window, 'submit', initMap);
+

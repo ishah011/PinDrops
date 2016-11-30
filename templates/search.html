@@ -26,8 +26,10 @@
         <dd><input type="text" size="30" placeholder="Enter First Name" name=firstName>
       <dt class="search">Last Name
         <dd><input type="text" size="30" placeholder="Enter Last Name" name=lastName>
-      <dd><input type=submit value="Search" class="search">
-    </dl>
+<!-- <dd><input type=submit value="Search" class="search"></center> 
+-->
+<dd>	<button onclick="initMap()">Search</button>
+ </dl>
   </div>
 
   <div class="movie hide">
@@ -35,7 +37,7 @@
     <dl>
       <dt class="search">Movie Name
         <dd><input type="text" size="30" placeholder="Enter Movie Name" name=movieName>
-      <dd><input type=submit value="Search" class="search">
+<dd>    <button onclick="initMap()">Search</button>
     </dl>
 </div>
 
@@ -49,20 +51,28 @@
       <dt class="search">Country Name
          <dd><input type="text" size="30" placeholder="Enter Country Name" name=countryName>
 
-        <center><dd><input type=submit value="Search" class="search"></center>
-    </dl>
+        <center>
+<dd>    <button onclick="initMap()">Search</button> 
+   </dl>
   
   </div>
 
 </form>
 
 </center>
+
+</script>
 <center>
+
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI&callback=initMap">
 </script>
 <div id="map"></div>
+</script>
+
 </center>
+
+
 {% if store %}
 <!--	<div class="result">
 		{% for item in store %}
@@ -99,6 +109,4 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 	</div>
 {% endif %}
 {% endblock %}
-
-
 
