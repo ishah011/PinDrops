@@ -551,7 +551,7 @@ def search():
 				country = "UK"
 			if country == 'Us' or country == 'America' or country == 'US':
 				country = 'USA'
-			cur.execute("""SELECT m.id, title, production_year FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
+			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
 			testReturn = getGenres(rv)
