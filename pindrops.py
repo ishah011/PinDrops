@@ -365,7 +365,7 @@ def search():
 			name = []
 			xcoord = []
 			ycoord = []
-			for i in rv[:20]:
+			for i in rv:
 				count = 1
 				temp1 = ""
 				temp2 = ""
@@ -468,7 +468,7 @@ def search():
    			name = []
 			xcoord = []
 			ycoord = []
-			for i in rv[:20]:
+			for i in rv:
 				count = 1
 				temp1 = ""
 				temp2 = ""
@@ -580,7 +580,7 @@ def search():
    			name = []
 			xcoord = []
 			ycoord = []
-			for i in rv[:20]:
+			for i in rv:
 				count = 1
 				temp1 = ""
 				temp2 = ""
