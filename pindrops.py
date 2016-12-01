@@ -271,51 +271,51 @@ def geocode(searchString):
 
 
 def getGraphs(rv, values):
-	# #ADMISSIONS
-	# dat1 = getAdmissions(rv)
-	# data = [go.Bar(
-	# 		x= dat1[0],
- #   			y= dat1[1]
-	# 	)]
-	# layout = go.Layout(
-	#     title='Admissions',
-	# )
-	# fig = go.Figure(data=data, layout=layout)
-	# values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+	#ADMISSIONS
+	dat1 = getAdmissions(rv)
+	data = [go.Bar(
+			x= dat1[0],
+   			y= dat1[1]
+		)]
+	layout = go.Layout(
+	    title='Admissions',
+	)
+	fig = go.Figure(data=data, layout=layout)
+	values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
 	
-	# #REVENUE
-	# dat2 = getRevenue(rv)
-	# data = [go.Bar(
-	# 	x= dat2[0],
-	# 	y= dat2[1]
-	# )]
-	# layout = go.Layout(
-	#     title='Revenue',
-	# )
-	# fig = go.Figure(data=data, layout=layout)
-	# values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+	#REVENUE
+	dat2 = getRevenue(rv)
+	data = [go.Bar(
+		x= dat2[0],
+		y= dat2[1]
+	)]
+	layout = go.Layout(
+	    title='Revenue',
+	)
+	fig = go.Figure(data=data, layout=layout)
+	values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
-	# #BUDGETS
-	# dat3 = getBudgets(rv)
-	# data = [go.Bar(
-	# 		x= dat3[0],
- #   			y= dat3[1]
-	# 	)]
-	# layout = go.Layout(
-	#     title='Budgets',
-	# )
-	# fig = go.Figure(data=data, layout=layout)
-	# values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+	#BUDGETS
+	dat3 = getBudgets(rv)
+	data = [go.Bar(
+			x= dat3[0],
+   			y= dat3[1]
+		)]
+	layout = go.Layout(
+	    title='Budgets',
+	)
+	fig = go.Figure(data=data, layout=layout)
+	values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
-	# #GENRES
-	# dat4 = getGenres(rv)
-	# fig = {
-	# 	'data': [{'labels': dat4[0],
- #    		'values': dat4[1],
- #    		'type': 'pie'}],
-	# 	'layout': {'title': 'Genres filmed'}
-	# }
-	# values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	#GENRES
+	dat4 = getGenres(rv)
+	fig = {
+		'data': [{'labels': dat4[0],
+    		'values': dat4[1],
+    		'type': 'pie'}],
+		'layout': {'title': 'Genres filmed'}
+	}
+	values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 	return values
 
 @app.route('/')
@@ -558,8 +558,8 @@ def search():
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
-			testReturn = getGenres(rv)
-			print (testReturn, file=sys.stderr)
+			# testReturn = getGenres(rv)
+			# print (testReturn, file=sys.stderr)
 
 			# store = []
 			# for i in rv[:20]:
