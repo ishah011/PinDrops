@@ -449,22 +449,6 @@ def search():
 			#tester = getBudgets(rv)
 			#print (tester, file=sys.stderr)
 			
-			# store = []
-			# for i in rv:
-			# 	temp = []
-			# 	for j in i:
-			# 		try:
-			# 			if type(j) == "string":
-			# 				temp.append(str(j.encode('ascii', 'ignore')))
-			# 			else:
-			# 				temp.append(str(j))
-			# 		except:
-			# 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			# 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			# 			return render_template('search.html', error=error, store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
-			# 	store.append(": ".join(temp))
-			# advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-   #                      advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
    			name = []
 			xcoord = []
 			ycoord = []
@@ -561,22 +545,6 @@ def search():
 			# testReturn = getGenres(rv)
 			# print (testReturn, file=sys.stderr)
 
-			# store = []
-			# for i in rv[:20]:
-			# 	temp = []
-			# 	for j in i:
-			# 		try:
-			# 			if type(j) == 'string':
-			# 				temp.append(str(j.encode('ascii', 'ignore')))
-			# 			else:
-			# 				temp.append(str(j))
-			# 		except:
-			# 			advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			# 			advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			# 			return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
-			# 	store.append(" - ".join(temp))
-			# advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-   #                      advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
    			name = []
 			xcoord = []
 			ycoord = []
@@ -692,6 +660,7 @@ def login():
 	if(rv is None):
 		error = 'Invalid email or password'
         else:
+        session['username'] = email
 		session['logged_in'] = True
 #        	loggedin = True
 		list(rv)
@@ -706,8 +675,19 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('username', None)
     return redirect(url_for('search'))
 
+@app.route('/delete')
+def delete():
+	email = session['username']
+	conn = mysql.connection
+	db = conn.cursor()
+	db.execute("""DELETE FROM Users WHERE email={}""".format(email))
+	conn.commit()
+    session.pop('logged_in', None)
+    session.pop('username', None)
+	redirect(url_for('search'))
 
 if __name__ == '__main__':
     app.run(debug=True)
