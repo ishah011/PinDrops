@@ -56,10 +56,7 @@ def getRevenue(movieList):
             else:
 		rev = rev.replace(",", "")
 		rev = rev[0] + " " + rev[1:]
-		#rev = rev.encode('ascii', 'ignore').decode('ascii')
-		#print (rev, file=sys.stderr)
 		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
-		#print (rev, file=sys.stderr)
 
                 rvRevs.append(rev[0])
                 rvNames.append(lookup[name])
@@ -95,10 +92,7 @@ def getAdmissions(movieList):
                 continue
             else:
 		rev = rev.replace(",", "")
-		#rev = rev.encode('ascii', 'ignore').decode('ascii')
-		#print (rev, file=sys.stderr)
 		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
-		#print (rev, file=sys.stderr)
 
                 rvRevs.append(rev[0])
                 rvNames.append(lookup[name])
@@ -135,10 +129,7 @@ def getBudgets(movieList):
             else:
 		rev = rev.replace(",", "")
 		rev = rev[0] + " " + rev[1:]
-		#rev = rev.encode('ascii', 'ignore').decode('ascii')
-		#print (rev, file=sys.stderr)
 		rev = [int(s) for s in rev.split(" ") if s.isdigit()]
-		#print (rev, file=sys.stderr)
 
                 rvRevs.append(rev[0])
                 rvNames.append(lookup[name])
@@ -221,8 +212,6 @@ def locationAnalysis():
 
 def geocode(searchString):
     print ('GEOCODE FUNCTION START', file=sys.stderr)
-    #if type(searchString) != "string":
-#	return
     if searchString is None:
 	return
     try:
@@ -233,11 +222,6 @@ def geocode(searchString):
 	return
     json_data = json.loads(content)
 
-#    numFound = json_data["numFound"]
-#    if numFound is 0:
-#        db.execute("""UPDATE Filmed_In SET latitude = 0, longitude = 0 WHERE location = '{}'""".format(searchString))
-#        conn.commit()
-#        return
 
     rv = []
     conn = mysql.connection
@@ -271,51 +255,51 @@ def geocode(searchString):
 
 
 def getGraphs(rv, values):
-	#ADMISSIONS
-	dat1 = getAdmissions(rv)
-	data = [go.Bar(
-			x= dat1[0],
-   			y= dat1[1]
-		)]
-	layout = go.Layout(
-	    title='Admissions',
-	)
-	fig = go.Figure(data=data, layout=layout)
-	values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+	# #ADMISSIONS
+	# dat1 = getAdmissions(rv)
+	# data = [go.Bar(
+	# 		x= dat1[0],
+ #   			y= dat1[1]
+	# 	)]
+	# layout = go.Layout(
+	#     title='Admissions',
+	# )
+	# fig = go.Figure(data=data, layout=layout)
+	# values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
 	
-	#REVENUE
-	dat2 = getRevenue(rv)
-	data = [go.Bar(
-		x= dat2[0],
-		y= dat2[1]
-	)]
-	layout = go.Layout(
-	    title='Revenue',
-	)
-	fig = go.Figure(data=data, layout=layout)
-	values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+	# #REVENUE
+	# dat2 = getRevenue(rv)
+	# data = [go.Bar(
+	# 	x= dat2[0],
+	# 	y= dat2[1]
+	# )]
+	# layout = go.Layout(
+	#     title='Revenue',
+	# )
+	# fig = go.Figure(data=data, layout=layout)
+	# values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
 
-	#BUDGETS
-	dat3 = getBudgets(rv)
-	data = [go.Bar(
-			x= dat3[0],
-   			y= dat3[1]
-		)]
-	layout = go.Layout(
-	    title='Budgets',
-	)
-	fig = go.Figure(data=data, layout=layout)
-	values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+	# #BUDGETS
+	# dat3 = getBudgets(rv)
+	# data = [go.Bar(
+	# 		x= dat3[0],
+ #   			y= dat3[1]
+	# 	)]
+	# layout = go.Layout(
+	#     title='Budgets',
+	# )
+	# fig = go.Figure(data=data, layout=layout)
+	# values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
 
-	#GENRES
-	dat4 = getGenres(rv)
-	fig = {
-		'data': [{'labels': dat4[0],
-    		'values': dat4[1],
-    		'type': 'pie'}],
-		'layout': {'title': 'Genres filmed'}
-	}
-	values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	# #GENRES
+	# dat4 = getGenres(rv)
+	# fig = {
+	# 	'data': [{'labels': dat4[0],
+ #    		'values': dat4[1],
+ #    		'type': 'pie'}],
+	# 	'layout': {'title': 'Genres filmed'}
+	# }
+	# values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
 	return values
 
 @app.route('/')
@@ -338,7 +322,6 @@ def search():
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
 
-#        		locationAnalysis()
 
 			fname = request.form['firstName']
 			fname = fname.capitalize()
@@ -346,22 +329,6 @@ def search():
 			lname = lname.capitalize()
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 			rv = cur.fetchall()
-#    		        repeat = False
-
-#           		print ('ENTER SEARCH METHOD', file=sys.stderr)
-#         		app.logger.info('Flask toolbar is operational inside search method')
-
-#           		for i in rv:
-#				 if i[2] is None:
-#                   			 print ('CALLING GEOCODE', file=sys.stderr)
-#					 print (i[1], file=sys.stderr)
-#                   			 geocode(i[1])
-#                   			 repeat = True
-
-#           		if repeat == True:
-#               			cur.execute("""SELECT m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
-    #			cur.execute("""SELECT * FROM Actors WHERE name LIKE '%{}, {}%'""".format(lname, fname))
-#    				rv = cur.fetchall()
 
 			name = []
 			xcoord = []
@@ -447,8 +414,6 @@ def search():
 			cur.execute("""SELECT DISTINCT m.id, m.title, f.location, f.latitude, f.longitude FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
 			
-			#tester = getBudgets(rv)
-			#print (tester, file=sys.stderr)
 			
    			name = []
 			xcoord = []
@@ -543,8 +508,6 @@ def search():
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
-			# testReturn = getGenres(rv)
-			# print (testReturn, file=sys.stderr)
 
    			name = []
 			xcoord = []
@@ -663,7 +626,6 @@ def login():
         else:
         	session['username'] = email
 		session['logged_in'] = True
-#        	loggedin = True
 		list(rv)
 		store = []
 		for i in rv:
