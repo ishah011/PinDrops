@@ -333,6 +333,7 @@ def search():
 	revenue = ""
 	budget = ""
 	genres = ""
+	new_vals = ["","","",""]
 	if request.method == 'POST':
 		cur = mysql.connection.cursor()
 		if request.form['selection'] == 'Actor':
@@ -660,7 +661,7 @@ def login():
 	if(rv is None):
 		error = 'Invalid email or password'
         else:
-        session['username'] = email
+        	session['username'] = email
 		session['logged_in'] = True
 #        	loggedin = True
 		list(rv)
@@ -683,11 +684,11 @@ def delete():
 	email = session['username']
 	conn = mysql.connection
 	db = conn.cursor()
-	db.execute("""DELETE FROM Users WHERE email={}""".format(email))
+	db.execute("""DELETE FROM Users WHERE email='{}'""".format(email))
 	conn.commit()
-    session.pop('logged_in', None)
-    session.pop('username', None)
-	redirect(url_for('search'))
+	session.pop('logged_in', None)
+	session.pop('username', None)
+	return redirect(url_for('search'))
 
 if __name__ == '__main__':
     app.run(debug=True)
