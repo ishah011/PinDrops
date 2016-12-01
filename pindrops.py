@@ -445,6 +445,10 @@ def search():
 			movieName = movieName.capitalize()
 			cur.execute("""SELECT DISTINCT m.id, m.title, f.location, f.latitude, f.longitude FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
+			
+			#tester = getBudgets(rv)
+			#print (tester, file=sys.stderr)
+			
 			# store = []
 			# for i in rv:
 			# 	temp = []
@@ -650,7 +654,7 @@ def search():
 
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=admissions, revenue=revenue, budget=budget, genres=genres)
+        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
 
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
