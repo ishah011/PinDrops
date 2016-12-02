@@ -6,10 +6,7 @@
 <script type ="text/javascript"  src="{{url_for('static', filename='search.js')}}"></script>
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='map.css') }}">
 <script type ="text/javascript"  src="{{url_for('static', filename='map.js')}}"></script>
-
 <center>
-
-
 <form action="{{ url_for('search') }}" method=post class="search container">
 <select name=selection class="div-toggle" data-target=".my-info-1">
   <option value="SELECT ONE" data-show=".select">SELECT SEARCH CATEGORY</option>
@@ -28,8 +25,8 @@
         <dd><input type="text" size="30" placeholder="Enter Last Name" name=lastName>
 <!-- <dd><input type=submit value="Search" class="search"></center> 
 -->
-<dd>	<button onclick="initMap()">Search</button>
- </dl>
+<dd>	<button onclick="initMap()">Search</button> 
+</dl>
   </div>
 
   <div class="movie hide">
@@ -37,8 +34,8 @@
     <dl>
       <dt class="search">Movie Name
         <dd><input type="text" size="30" placeholder="Enter Movie Name" name=movieName>
-<dd>    <button onclick="initMap()">Search</button>
-    </dl>
+	<dd>    <button onclick="initMap()">Search</button>     
+</dl>
 </div>
 
   <div class="location hide">
@@ -52,8 +49,8 @@
          <dd><input type="text" size="30" placeholder="Enter Country Name" name=countryName>
 
         <center>
-<dd>    <button onclick="initMap()">Search</button> 
-   </dl>
+<dd>    <button onclick="initMap()">Search</button>    
+</dl>
   
   </div>
 
@@ -63,10 +60,11 @@
 
 </script>
 <center>
-
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlxhogxdtHI&callback=initMap">
+
 </script>
+
 <div id="map"></div>
 </script>
 

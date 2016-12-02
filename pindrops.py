@@ -31,6 +31,8 @@ app.config['MYSQL_DB'] = 'imdb'
 app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8f\xe2\r"""
 
+somedict = None
+
 def getRevenue(movieList):
     rvRevs = []
     rvNames = []
@@ -308,11 +310,12 @@ def index(store=None):
 
 @app.route('/search', methods=['GET','POST'])
 def search():
+	global somedict
 	error = None
 	store = []
 	advanced1 = ""
 	advanced2 = ""
-	somedict = {}
+	#somedict = {}
 	admissions = ""
 	revenue = ""
 	budget = ""
@@ -333,7 +336,7 @@ def search():
 			name = []
 			xcoord = []
 			ycoord = []
-			for i in rv:
+			for i in rv[:20]:
 				count = 1
 				temp1 = ""
 				temp2 = ""
@@ -382,8 +385,8 @@ def search():
 									"xcoord"	:	[x for x in xcoord],
 									"ycoord"	:	[y for y in ycoord]
 						}
-						with open('static/markers.txt', 'w') as outfile:
-							json.dump(somedict, outfile)
+						# with open('static/markers.txt', 'w') as outfile:
+						#	json.dump(somedict, outfile)
 
 						#GET GRAPHS
 						values = [admissions, revenue, budget, genres]
@@ -399,8 +402,8 @@ def search():
 						"xcoord"	:	[x for x in xcoord],
 						"ycoord"	:	[y for y in ycoord]
 			}
-			with open('static/markers.txt', 'w') as outfile:
-				json.dump(somedict, outfile)
+			#with open('static/markers.txt', 'w') as outfile:
+			#	json.dump(somedict, outfile)
 			#GET GRAPHS
 			values = [admissions, revenue, budget, genres]
 			new_vals = getGraphs(rv, values)
@@ -588,6 +591,7 @@ def search():
 		 	error = "Please choose an option below"
         return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
 
+
 @app.route('/add', methods=['GET','POST'])
 def add_entry():
     error = None
@@ -634,6 +638,10 @@ def login():
 		return redirect(url_for('search'))
 
     return render_template('login.html', error=error, loggedin=loggedin, result=result)
+
+@app.route('/markers')
+def markers():
+	return jsonify(**somedict)
 
 @app.route('/logout')
 def logout():
