@@ -63,12 +63,12 @@ var map = new google.maps.Map(document.getElementById('map'), {
         map: map});
       
  
-//      google.maps.event.addListener(marker, 'click', (function(marker, i) {
- //       return function() {
- //         infowindow.setContent(nameData[i]);
- //         infowindow.open(map, marker);
- //       }
- //     })(marker, i));
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(nameData[i]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
     }}
 });
 
