@@ -336,7 +336,7 @@ def search():
 			name = []
 			xcoord = []
 			ycoord = []
-			for i in rv[:20]:
+			for i in rv:
 				count = 1
 				temp1 = ""
 				temp2 = ""
@@ -660,5 +660,23 @@ def delete():
 	session.pop('username', None)
 	return redirect(url_for('search'))
 
+@app.route('/update')
+def update():
+	message = ""
+	if request.method == 'POST':
+		email = session['username']
+		Npassword = request.form['Npassword']
+		Opassword = request.form['Opassword']
+		conn = mysql.connection
+		db = conn.cursor()
+		db.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, Opassword))
+		if rv is not None:
+			db.execute("""UPDATE Users SET password = '{}' WHERE email='{}'""".format(Npassword, email))
+			conn.commit()
+			message = "Password has been updated"
+		else:
+			message = "Invalid email/password"
+
+	return render_template('update.html', message=message)
 if __name__ == '__main__':
     app.run(debug=True)
