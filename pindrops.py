@@ -660,7 +660,7 @@ def delete():
 	session.pop('username', None)
 	return redirect(url_for('search'))
 
-@app.route('/update')
+@app.route('/update',methods=['GET', 'POST'])
 def update():
 	message = ""
 	if request.method == 'POST':
@@ -670,6 +670,7 @@ def update():
 		conn = mysql.connection
 		db = conn.cursor()
 		db.execute("""SELECT * FROM Users WHERE email='{}' AND password='{}'""".format(email, Opassword))
+		rv = db.fetchone()
 		if rv is not None:
 			db.execute("""UPDATE Users SET password = '{}' WHERE email='{}'""".format(Npassword, email))
 			conn.commit()
