@@ -72,13 +72,13 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 
 
 {% if store %}
-<!--	<div class="result">
-		{% for item in store %}
+	<div class="advanced">
+	<h3>You may also want to search:</h3>
+		{% for item in recommend %}
 			{{item}}
 		{% endfor %}
-	</div>-->
-<!--<div class="map">
-</div>-->
+	</div>
+
 	<div class="advanced">
 		<br>
 		<button onclick="admissions()">View Admissions</button>
@@ -100,10 +100,6 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 		<div class= "graphs" id = "genres">
 			{{genres|safe}}
 		</div>
-		<br>
-		{{advanced1}}
-		<br>
-		{{advanced2}}
 	</div>
 {% endif %}
 {% endblock %}

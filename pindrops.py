@@ -33,6 +33,96 @@ app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8
 
 somedict = None
 
+def recomendationFromLocation(lat, long):
+	ret = []
+    conn = mysql.connection
+	
+    db = conn.cursor()
+    db.execute("""select title, movie_info.info,( 3959 * acos( cos( radians({}) )* cos( radians( Filmed_In.latitude ) ) * cos( radians( Filmed_In.longitude ) - radians({}) )+ sin( radians({}) ) * sin( radians( Filmed_In.latitude ) ) ) ) AS distance from Filmed_In, movie_info, Movies where Filmed_In.latitude between {} and {} and Filmed_In.longitude between {} and {} and Movies.id = Filmed_In.movie_id and Movies.id <> 3689632 and movie_info.movie_id = Filmed_In.movie_id and movie_info.info_type_id = 101 having distance < 10 LIMIT 200;""".format(lat, long, lat, lat-2, lat+2, long-2, long+2))
+    result = db.fetchall()
+	sorted(result, key=float(itemgetter(1)))
+	count = 0
+    if len(result) > 0:
+        for rtRev in result:
+			ret.append(rtRev[0])
+			count++
+			if count > 9
+				break
+    return ret
+		
+	
+def recomendationFromMovie(movie_id):
+	ret = []
+    conn = mysql.connection
+	
+    db = conn.cursor()
+    db.execute("""set @avgLat = (SELECT AVG(latitude)
+FROM Filmed_In
+where Filmed_In.movie_id = {});
+
+
+set @avgLong = (SELECT AVG(longitude)
+FROM Filmed_In
+where Filmed_In.movie_id = {});
+
+
+set @myid = (SELECT id
+FROM Filmed_In
+where Filmed_In.movie_id = {}
+and latitude is not NULL
+order by (POWER(@avgLat-Filmed_In.latitude, 2) + POWER(@avgLong-Filmed_In.longitude, 2))
+limit 1);
+
+
+set @lat = (SELECT latitude from Filmed_In where id = @myid);
+set @long = (SELECT longitude from Filmed_In where id = @myid);
+
+
+select title, movie_info.info,
+       ( 3959 * acos( cos( radians(@lat) ) 
+              * cos( radians( Filmed_In.latitude ) ) 
+              * cos( radians( Filmed_In.longitude ) - radians(@long) ) 
+              + sin( radians(@lat) ) 
+              * sin( radians( Filmed_In.latitude ) ) ) ) AS distance 
+from Filmed_In, movie_info, Movies
+where Filmed_In.latitude between @lat-2 and @lat+2 
+and Filmed_In.longitude between @long-2 and @long+2
+and Movies.id = Filmed_In.movie_id
+and Movies.id <> {}
+and movie_info.movie_id = Filmed_In.movie_id
+and movie_info.info_type_id = 101
+having distance < 10
+LIMIT 200;""".format(movie_id, movie_id, movie_id, movie_id))
+
+
+    result = db.fetchall()
+	
+	sorted(result, key=float(itemgetter(1)))
+	count = 0
+    if len(result) > 0:
+        for rtRev in result:
+			ret.append(rtRev[0])
+			count++
+			if count > 9
+				break
+
+    return ret	
+		
+	
+def recomendationFromActor(personId):
+	ret = []
+    conn = mysql.connection
+	
+    db = conn.cursor()
+	db.execute("""SELECT title From ActedIn ai, Movies m where ai.person_id = {} and ai.movie_id = m.id;""".format(personId))
+	
+    result = db.fetchall()
+    if len(result) > 0:
+        for rtRev in result:
+			ret.append(rtRev[0])
+
+	return ret
+
 def getRevenue(movieList):
     rvRevs = []
     rvNames = []
@@ -316,6 +406,7 @@ def search():
 	advanced1 = ""
 	advanced2 = ""
 	#somedict = {}
+	recommend = ""
 	admissions = ""
 	revenue = ""
 	budget = ""
@@ -330,6 +421,11 @@ def search():
 			fname = fname.capitalize()
 			lname = request.form['lastName']
 			lname = lname.capitalize()
+
+			cur.execute("""SELECT a.person_id FROM Actors t, ActedIn a WHERE t.name='{},{}' AND t.actor_id = a.person_id""".format(lname, fname))
+			rv = cur.fetchone()
+			recommend = recomendationFromActor(rv[0])
+
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 			rv = cur.fetchall()
 
@@ -394,7 +490,7 @@ def search():
 
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -414,6 +510,11 @@ def search():
 		elif request.form['selection'] == 'Movie':
 		 	movieName = request.form['movieName']
 			movieName = movieName.capitalize()
+
+			cur.execute("""SELECT DISTINCT m.id FROM Movies m WHERE m.title LIKE'%{}%'""".format(movieName))
+			rv = cur.fetchone()
+			recommend = recomendationFromMovie(rv[0])
+
 			cur.execute("""SELECT DISTINCT m.id, m.title, f.location, f.latitude, f.longitude FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
 			
@@ -479,7 +580,7 @@ def search():
 
 						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
 			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -508,6 +609,12 @@ def search():
 				country = "UK"
 			if country == 'Us' or country == 'America' or country == 'US':
 				country = 'USA'
+			
+			cur.execute("""SELECT f.latitude, f.longitude FROM Filmed_in f WHERE f.location = '{}, {}, {}'""".format(city, state, country))
+			rv = cur.fetchone()
+			if rv > 0:
+				recommend = recomendationFromLocation(float(rv[0]), float(rv[1]))
+
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
 			rv = cur.fetchall()
 
@@ -570,10 +677,7 @@ def search():
 						#GET GRAPHS
 						values = [admissions, revenue, budget, genres]
 						new_vals = getGraphs(rv, values)
-
-						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -589,7 +693,7 @@ def search():
 
 		else:
 		 	error = "Please choose an option below"
-        return render_template('search.html', error=error,store=store, advanced1=advanced1, advanced2=advanced2, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3])
+        return render_template('search.html', error=error,store=store, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
 
 
 @app.route('/add', methods=['GET','POST'])
