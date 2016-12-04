@@ -70,15 +70,8 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 
 </center>
 
-
+<center>
 {% if store %}
-	<div class="advanced">
-	<h3>You may also want to search:</h3>
-		{% for item in recommend %}
-			{{item}}
-		{% endfor %}
-	</div>
-
 	<div class="advanced">
 		<br>
 		<button onclick="admissions()">View Admissions</button>
@@ -101,6 +94,13 @@ src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4MqA0AuxfTMGkp-hROa0UQlx
 			{{genres|safe}}
 		</div>
 	</div>
+	<div>
+	<h3>You may also want to search:</h3>
+		{% for item in recommend %}
+			{{item}} <br>
+		{%endfor%}
+	</div>
 {% endif %}
+</center>
 {% endblock %}
 

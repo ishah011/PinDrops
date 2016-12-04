@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask import render_template, request, session, flash, redirect, url_for, json, jsonify
 from flask_debugtoolbar import DebugToolbarExtension 
 
+from operator import itemgetter
 import sys
 import urllib2
 import urllib
@@ -18,10 +19,8 @@ plotly.tools.set_credentials_file(username='PinDroppers', api_key='4c9lIQK4LJbxC
 
 app = Flask(__name__)
 
-app.debug = True
-app.config['SECRET_KEY'] = 314159265358979
-toolbar = DebugToolbarExtension(app)
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+#app.debug = True
+#app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 
 mysql = MySQL(app)
@@ -33,95 +32,93 @@ app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8
 
 somedict = None
 
+
 def recomendationFromLocation(lat, long):
-	ret = []
-    conn = mysql.connection
+	from sets import Set
+	ret = Set([])
+	conn = mysql.connection
 	
-    db = conn.cursor()
-    db.execute("""select title, movie_info.info,( 3959 * acos( cos( radians({}) )* cos( radians( Filmed_In.latitude ) ) * cos( radians( Filmed_In.longitude ) - radians({}) )+ sin( radians({}) ) * sin( radians( Filmed_In.latitude ) ) ) ) AS distance from Filmed_In, movie_info, Movies where Filmed_In.latitude between {} and {} and Filmed_In.longitude between {} and {} and Movies.id = Filmed_In.movie_id and Movies.id <> 3689632 and movie_info.movie_id = Filmed_In.movie_id and movie_info.info_type_id = 101 having distance < 10 LIMIT 200;""".format(lat, long, lat, lat-2, lat+2, long-2, long+2))
-    result = db.fetchall()
-	sorted(result, key=float(itemgetter(1)))
-	count = 0
-    if len(result) > 0:
-        for rtRev in result:
-			ret.append(rtRev[0])
-			count++
-			if count > 9
+	db = conn.cursor()
+	db.execute("""select title, Cast(movie_info.info as decimal),
+	( 3959 * acos( cos( radians({}) )* cos( radians( Filmed_In.latitude ) ) * cos( radians( Filmed_In.longitude ) - radians({}) )+ sin( radians({}) ) * sin( radians( Filmed_In.latitude ) ) ) ) AS distance
+	from Filmed_In, movie_info, Movies 
+	where Filmed_In.latitude between {} and {} 
+	and Filmed_In.longitude between {} and {} 
+	and Movies.id = Filmed_In.movie_id
+	and movie_info.movie_id = Filmed_In.movie_id 
+	and movie_info.info_type_id = 101 
+	having distance < 10 
+	order by movie_info.info desc
+	LIMIT 50;""".format(lat, long, lat, lat-2, lat+2, long-2, long+2))
+	result = db.fetchall()
+	
+	if len(result) > 0:
+		for rtRev in result:
+			ret.add(rtRev[0])
+			
+			if len(ret) == 10:
 				break
-    return ret
-		
+	
+	return list(ret)
+
 	
 def recomendationFromMovie(movie_id):
-	ret = []
-    conn = mysql.connection
+	from sets import Set
+	ret = Set([])
+	conn = mysql.connection
 	
-    db = conn.cursor()
-    db.execute("""set @avgLat = (SELECT AVG(latitude)
+	db = conn.cursor()
+	db.execute("""SELECT AVG(latitude)
 FROM Filmed_In
-where Filmed_In.movie_id = {});
+where Filmed_In.movie_id = {};""".format(movie_id))
 
+	avgLat = db.fetchone()
 
-set @avgLong = (SELECT AVG(longitude)
+	db.execute("""SELECT AVG(longitude)
 FROM Filmed_In
-where Filmed_In.movie_id = {});
+where Filmed_In.movie_id = {};""".format(movie_id))
 
+	avgLong = db.fetchone()
 
-set @myid = (SELECT id
+	db.execute("""SELECT latitude, longitude
 FROM Filmed_In
 where Filmed_In.movie_id = {}
 and latitude is not NULL
-order by (POWER(@avgLat-Filmed_In.latitude, 2) + POWER(@avgLong-Filmed_In.longitude, 2))
-limit 1);
+order by (POWER({}-Filmed_In.latitude, 2) + POWER({}-Filmed_In.longitude, 2))
+limit 1;""".format(movie_id, avgLat[0], avgLong[0]))
+
+	actual = db.fetchone()
 
 
-set @lat = (SELECT latitude from Filmed_In where id = @myid);
-set @long = (SELECT longitude from Filmed_In where id = @myid);
-
-
-select title, movie_info.info,
-       ( 3959 * acos( cos( radians(@lat) ) 
+	db.execute("""select title, Cast(movie_info.info as decimal),
+       ( 3959 * acos( cos( radians({}) ) 
               * cos( radians( Filmed_In.latitude ) ) 
-              * cos( radians( Filmed_In.longitude ) - radians(@long) ) 
-              + sin( radians(@lat) ) 
+              * cos( radians( Filmed_In.longitude ) - radians({}) ) 
+              + sin( radians({}) ) 
               * sin( radians( Filmed_In.latitude ) ) ) ) AS distance 
 from Filmed_In, movie_info, Movies
-where Filmed_In.latitude between @lat-2 and @lat+2 
-and Filmed_In.longitude between @long-2 and @long+2
+where Filmed_In.latitude between {}-2 and {}+2 
+and Filmed_In.longitude between {}-2 and {}+2
 and Movies.id = Filmed_In.movie_id
 and Movies.id <> {}
 and movie_info.movie_id = Filmed_In.movie_id
 and movie_info.info_type_id = 101
 having distance < 10
-LIMIT 200;""".format(movie_id, movie_id, movie_id, movie_id))
+order by movie_info.info desc
+LIMIT 50;""".format(actual[0], actual[1], actual[0], actual[0], actual[0], actual[1], actual[1], movie_id))
 
-
-    result = db.fetchall()
+	result = db.fetchall()
 	
-	sorted(result, key=float(itemgetter(1)))
-	count = 0
-    if len(result) > 0:
-        for rtRev in result:
-			ret.append(rtRev[0])
-			count++
-			if count > 9
+	if len(result) > 0:
+        	for rtRev in result:
+			ret.add(rtRev[0])
+			
+			if len(ret) == 10:
 				break
+	
+	return list(ret)
 
-    return ret	
-		
-	
-def recomendationFromActor(personId):
-	ret = []
-    conn = mysql.connection
-	
-    db = conn.cursor()
-	db.execute("""SELECT title From ActedIn ai, Movies m where ai.person_id = {} and ai.movie_id = m.id;""".format(personId))
-	
-    result = db.fetchall()
-    if len(result) > 0:
-        for rtRev in result:
-			ret.append(rtRev[0])
 
-	return ret
 
 def getRevenue(movieList):
     rvRevs = []
@@ -422,75 +419,35 @@ def search():
 			lname = request.form['lastName']
 			lname = lname.capitalize()
 
-			cur.execute("""SELECT a.person_id FROM Actors t, ActedIn a WHERE t.name='{},{}' AND t.actor_id = a.person_id""".format(lname, fname))
+			cur.execute("""SELECT a.person_id FROM Actors t, ActedIn a WHERE t.name='{}, {}' AND t.actor_id = a.person_id""".format(lname, fname))
 			rv = cur.fetchone()
 			recommend = recomendationFromActor(rv[0])
 
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 			rv = cur.fetchall()
 
+			#print (rv, file=sys.stderr)
+
 			name = []
 			xcoord = []
 			ycoord = []
 			for i in rv:
-				count = 1
-				temp1 = ""
-				temp2 = ""
-				for j in i:
-					try:
-						if type(j) == "string":
-							if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j.encode('ascii', 'ignore'))
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j.encode('ascii', 'ignore'))
-								count += 1
-			 			else:
-			 				if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j)
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j)
-								count += 1
-			 		except:
-			 			somedict={		"name"		:	[i for i in name],
-									"xcoord"	:	[x for x in xcoord],
-									"ycoord"	:	[y for y in ycoord]
-						}
-						# with open('static/markers.txt', 'w') as outfile:
-						#	json.dump(somedict, outfile)
+				mID = i[0]
+				mTitle = i[1]
+				mLocation = i[2]
+				mLat = i[3]
+				mLng = i[4]
 
-						#GET GRAPHS
-						values = [admissions, revenue, budget, genres]
-						new_vals = getGraphs(rv, values)
+				if mLat is None:
+					continue
+				try:
+					tag = str(mTitle.decode('iso-8859-1').encode('ascii','ignore')) + " - " + str(mLocation.decode('iso-8859-1').encode('ascii','ignore'))
+				except:
+					continue
+				name.append(tag)
+				xcoord.append(mLat)
+				ycoord.append(mLng)
 
-						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -523,64 +480,23 @@ def search():
 			xcoord = []
 			ycoord = []
 			for i in rv:
-				count = 1
-				temp1 = ""
-				temp2 = ""
-				for j in i:
-					try:
-						if type(j) == "string":
-							if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j.encode('ascii', 'ignore'))
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j.encode('ascii', 'ignore'))
-								count += 1
-			 			else:
-			 				if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j)
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j)
-								count += 1
-			 		except:
-			 			somedict={		"name"		:	[i for i in name],
-									"xcoord"	:	[x for x in xcoord],
-									"ycoord"	:	[y for y in ycoord]
-						}
-						with open('static/markers.txt', 'w') as outfile:
-							json.dump(somedict, outfile)
+				mID = i[0]
+				mTitle = i[1]
+				mLocation = i[2]
+				mLat = i[3]
+				mLng = i[4]
 
-						#GET GRAPHS
-						values = [admissions, revenue, budget, genres]
-						new_vals = getGraphs(rv, values)
+				if mLat is None:
+					continue
 
-						advanced1 = "A map with the returned locations marked will be placed here along with movie recommedations based off of the search query. This is an advanced feature"
-			 			#advanced2 = "Graphical data(such as revenue and ratings) about the movies at the marked locations will be placed here. This is an advanced feature"
-			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
+				try:
+					tag = str(mTitle.decode('iso-8859-1').encode('ascii', 'ignore')) + " - " + str(mLocation.decode('iso-8859-1').encode('ascii', 'ignore'))
+				except:
+					continue
+				name.append(tag)
+				xcoord.append(mLat)
+				ycoord.append(mLng)
+
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
@@ -610,7 +526,7 @@ def search():
 			if country == 'Us' or country == 'America' or country == 'US':
 				country = 'USA'
 			
-			cur.execute("""SELECT f.latitude, f.longitude FROM Filmed_in f WHERE f.location = '{}, {}, {}'""".format(city, state, country))
+			cur.execute("""SELECT f.latitude, f.longitude FROM Filmed_In f WHERE f.location = '{}, {}, {}'""".format(city, state, country))
 			rv = cur.fetchone()
 			if rv > 0:
 				recommend = recomendationFromLocation(float(rv[0]), float(rv[1]))
@@ -623,61 +539,23 @@ def search():
 			xcoord = []
 			ycoord = []
 			for i in rv:
-				count = 1
-				temp1 = ""
-				temp2 = ""
-				for j in i:
-					try:
-						if type(j) == "string":
-							if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j.encode('ascii', 'ignore'))
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j.encode('ascii', 'ignore'))
-								count += 1
-			 			else:
-			 				if count%4 is 0:
-								xcoord.append(j)
-								count += 1
-							elif count%5 is 0:
-								ycoord.append(j)
-								count += 1
-							elif (count+2)%3 is 0:
-								count += 1
-								continue
-							else:
-								if count%3 is 0:
-									temp2 = str(j)
-									name.append(temp1 + " - " + temp2)
-									temp1 = ""
-									temp2 = ""
-								else:
-									temp1 = str(j)
-								count += 1
-			 		except:
-			 			somedict={		"name"		:	[i for i in name],
-									"xcoord"	:	[x for x in xcoord],
-									"ycoord"	:	[y for y in ycoord]
-						}
-						with open('static/markers.txt', 'w') as outfile:
-							json.dump(somedict, outfile)
+				mID = i[0]
+				mTitle = i[1]
+				mLocation = i[2]
+				mLat = i[3]
+				mLng = i[4]
 
-						#GET GRAPHS
-						values = [admissions, revenue, budget, genres]
-						new_vals = getGraphs(rv, values)
-			 			return render_template('search.html', error=error,store=name, somedict=somedict, admissions=new_vals[0], revenue=new_vals[1], budget=new_vals[2], genres=new_vals[3], recommend=recommend)
+				if mLat is None:
+					continue
+
+				try:
+					tag = str(mTitle.decode('iso-8859-1').encode('ascii', 'ignore')) + " - " + str(mLocation.decode('iso-8859-1').encode('ascii', 'ignore'))
+				except:
+					continue
+				name.append(tag)
+				xcoord.append(mLat)
+				ycoord.append(mLng)
+
 			store = name
 			
 			#JSON FOR GOOGLE MAPS MARKERS
