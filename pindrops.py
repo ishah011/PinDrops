@@ -15,7 +15,13 @@ import plotly.graph_objs as go
 import plotly
 import plotly.tools as tls
 
-plotly.tools.set_credentials_file(username='PinDroppers', api_key='4c9lIQK4LJbxCvxvDCM6')
+#plotly.tools.set_credentials_file(username='PinDroppers2', api_key='PoFsPCy53sTLI4U7gKLT')
+#plotly.tools.set_credentials_file(username='sloznjakovic', api_key='tv1QymjN1eHQgH68ywin')
+plotly.tools.set_credentials_file(username='icanstdssfsdd', api_key='I0tHpMLP8rxiQurUC6YZ')
+#plotly.tools.set_credentials_file(username='jack00101', api_key='ld3yHVcfmzWKhdzdK1Gd')
+#plotly.tools.set_credentials_file(username='thesecond0001', api_key='3i8LkHXAeQ529aib9l3e')
+#plotly.tools.set_credentials_file(username='ineedthis001', api_key='4WRIfGDhhxHNdOPcinMT')
+
 
 app = Flask(__name__)
 
@@ -31,6 +37,9 @@ app.config['MYSQL_HOST'] = 'fa16-cs411-29.cs.illinois.edu'
 app.secret_key = """p6\x9e\x08B\xe2\x11/\xbd\xd6k\xb7=\xc3\xd6p\x96\x90S\xd4z\x8f\xe2\r"""
 
 somedict = None
+
+users = ['jack00101', 'thesecond0001', 'ineedthis001'] 
+keys = ['ld3yHVcfmzWKhdzdK1Gd', '3i8LkHXAeQ529aib9l3e', '4WRIfGDhhxHNdOPcinMT']
 
 
 def recomendationFromLocation(lat, long):
@@ -80,6 +89,10 @@ where Filmed_In.movie_id = {};""".format(movie_id))
 
 	avgLong = db.fetchone()
 
+	if avgLong[0] is None or avgLat[0] is None:
+		ret.add("No suggestions")
+		return list(ret)
+
 	db.execute("""SELECT latitude, longitude
 FROM Filmed_In
 where Filmed_In.movie_id = {}
@@ -117,6 +130,26 @@ LIMIT 50;""".format(actual[0], actual[1], actual[0], actual[0], actual[0], actua
 				break
 	
 	return list(ret)
+
+def recomendationFromActor(personId):
+    ret = []
+    conn = mysql.connection
+	
+    db = conn.cursor()
+	
+    db.execute("""SELECT title From ActedIn ai, Movies m where ai.person_id = {} and ai.movie_id = m.id;""".format(personId))
+	
+    result = db.fetchall()
+    
+    if len(result) > 0:
+        for rtRev in result:
+			ret.append(rtRev[0])
+			
+			if len(ret) == 10:
+				break
+
+
+    return ret
 
 
 
@@ -348,37 +381,49 @@ def getGraphs(rv, values):
 	dat1 = getAdmissions(rv)
 	data = [go.Bar(
 			x= dat1[0],
-   			y= dat1[1]
+   			y= dat1[1],
+			hoverinfo = "skip"
 		)]
 	layout = go.Layout(
 	    title='Admissions',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+	try:
+		values[0] = tls.get_embed(py.plot(fig, filename='admissions', fileopt = 'overwrite'))
+	except:
+		print ('API LIMIT REACHED', file=sys.stderr)
 	
 	#REVENUE
 	dat2 = getRevenue(rv)
 	data = [go.Bar(
 		x= dat2[0],
-		y= dat2[1]
+		y= dat2[1],
+		hoverinfo = "skip"
 	)]
 	layout = go.Layout(
 	    title='Revenue',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+	try:
+		values[1] = tls.get_embed(py.plot(fig, filename='revenue', fileopt = 'overwrite'))
+	except:
+		print ('API LIMIT REACHED', file=sys.stderr)
 
 	#BUDGETS
 	dat3 = getBudgets(rv)
 	data = [go.Bar(
 			x= dat3[0],
-   			y= dat3[1]
+   			y= dat3[1],
+			hoverinfo = "skip"
 		)]
 	layout = go.Layout(
 	    title='Budgets',
 	)
 	fig = go.Figure(data=data, layout=layout)
-	values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+	try:
+		values[2] = tls.get_embed(py.plot(fig, filename='budget', fileopt='overwrite'))
+	except:
+		print ('API LIMIT REACHED', file=sys.stderr)
 
 	#GENRES
 	dat4 = getGenres(rv)
@@ -388,7 +433,11 @@ def getGraphs(rv, values):
     		'type': 'pie'}],
 		'layout': {'title': 'Genres filmed'}
 	}
-	values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	try:
+		values[3] = tls.get_embed(py.plot(fig, filename='genres', fileopt='overwrite'))
+	except:
+		print ('API LIMIT REACHED')
+
 	return values
 
 @app.route('/')
@@ -421,7 +470,8 @@ def search():
 
 			cur.execute("""SELECT a.person_id FROM Actors t, ActedIn a WHERE t.name='{}, {}' AND t.actor_id = a.person_id""".format(lname, fname))
 			rv = cur.fetchone()
-			recommend = recomendationFromActor(rv[0])
+			if rv is not None: 
+				recommend = recomendationFromActor(rv[0])
 
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Movies m LEFT JOIN imdb.Filmed_In f ON f.movie_id = m.id LEFT JOIN imdb.ActedIn a ON a.movie_id = m.id LEFT JOIN imdb.Actors t ON t.actor_id = a.person_id WHERE t.name = '{}, {}'""".format(lname, fname))
 			rv = cur.fetchall()
@@ -470,7 +520,8 @@ def search():
 
 			cur.execute("""SELECT DISTINCT m.id FROM Movies m WHERE m.title LIKE'%{}%'""".format(movieName))
 			rv = cur.fetchone()
-			recommend = recomendationFromMovie(rv[0])
+			if rv is not None:
+				recommend = recomendationFromMovie(rv[0])
 
 			cur.execute("""SELECT DISTINCT m.id, m.title, f.location, f.latitude, f.longitude FROM Filmed_In f, Movies m WHERE m.title LIKE'%{}%' AND f.movie_id = m.id""".format(movieName))
 			rv = cur.fetchall()
@@ -528,7 +579,7 @@ def search():
 			
 			cur.execute("""SELECT f.latitude, f.longitude FROM Filmed_In f WHERE f.location = '{}, {}, {}'""".format(city, state, country))
 			rv = cur.fetchone()
-			if rv > 0:
+			if rv is not None:
 				recommend = recomendationFromLocation(float(rv[0]), float(rv[1]))
 
 			cur.execute("""SELECT m.id, m.title, f.location, f.latitude, f.longitude FROM imdb.Filmed_In f, imdb.Movies m WHERE f.location = "{}, {}, {}" AND f.movie_id = m.id""".format(city, state, country))
